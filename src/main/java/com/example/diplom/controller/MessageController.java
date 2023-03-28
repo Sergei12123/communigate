@@ -1,12 +1,9 @@
 package com.example.diplom.controller;
 
 import com.example.diplom.manager.XimssService;
-import com.example.diplom.ximss.request.ListFeatures;
-import com.example.diplom.ximss.request.Noop;
 import com.example.diplom.ximss.request.Signup;
 import com.example.diplom.ximss.response.Response;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;

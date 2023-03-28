@@ -52,6 +52,6 @@ public class XimssService {
     }
 
     private String unwrapXimss(final String xml) {
-        return xml.replace("<XIMSS>","").replace("</XIMSS>","");
+        return xml.replace("<XIMSS>", "").replace("</XIMSS>", "");
     }
 }
