@@ -1,35 +1,31 @@
-package com.example.diplom.ximss.request;
+package com.example.diplom.ximss.response;
 
-import com.example.diplom.annotation.PreLoginRequest;
 import com.example.diplom.ximss.BaseXIMSS;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Setter
 @Builder
-@PreLoginRequest
-@JacksonXmlRootElement(localName = "signup")
-public class Signup extends BaseXIMSS {
-
+@NoArgsConstructor
+@AllArgsConstructor
+@JacksonXmlRootElement(localName = "session")
+public class Session extends BaseXIMSS {
     @JacksonXmlProperty(isAttribute = true)
-    private String domain;
+    private String urlID;
 
-    @NonNull
     @JacksonXmlProperty(isAttribute = true)
     private String userName;
-
-    @NonNull
-    @JacksonXmlProperty(isAttribute = true)
-    private String password;
 
     @JacksonXmlProperty(isAttribute = true)
     private String realName;
 
     @JacksonXmlProperty(isAttribute = true)
-    private String recoverPassword;
+    private String version;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private String random;
 }

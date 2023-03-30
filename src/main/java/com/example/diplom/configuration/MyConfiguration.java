@@ -9,6 +9,8 @@ public class MyConfiguration {
 
     @Bean
     public XmlMapper xmlMapper() {
-        return new XmlMapper();
+        final XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.setDefaultUseWrapper(false);
+        return xmlMapper;
     }
 }

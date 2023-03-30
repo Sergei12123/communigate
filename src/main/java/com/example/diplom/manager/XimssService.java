@@ -2,7 +2,8 @@ package com.example.diplom.manager;
 
 import com.example.diplom.annotation.PreLoginRequest;
 import com.example.diplom.ximss.BaseXIMSS;
-import com.example.diplom.ximss.response.Response;
+import com.example.diplom.ximss.request.Login;
+import com.example.diplom.ximss.response.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -25,7 +27,9 @@ public class XimssService {
 
     static private final String DEFAULT_URL_FOR_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
 
-    public <T extends BaseXIMSS> Response sendRequest(final T requestXimssEntity) {
+    public static final String DUMB_LOGIN_URL = "http://localhost:8100/ximsslogin/?userName={userName}&password={password}";
+
+    public <T, P extends BaseXIMSS> P sendRequest(final T requestXimssEntity, final Class<P> responseClass) {
         try {
             String res = wrapInXimssTag(xmlMapper.writeValueAsString(requestXimssEntity));
             HttpHeaders headers = new HttpHeaders();
@@ -40,7 +44,23 @@ public class XimssService {
                     String.class
             );
 
-            return xmlMapper.readValue(unwrapXimss(Objects.requireNonNull(response.getBody())), Response.class);
+            return xmlMapper.readValue(unwrapXimss(Objects.requireNonNull(response.getBody())), responseClass);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public Session makeDumbLogin(final Login loginEntity) {
+        try {
+            final String response = new RestTemplate().getForObject(
+                    DUMB_LOGIN_URL,
+                    String.class,
+                    Map.of("userName", loginEntity.getUserName(),
+                            "password", loginEntity.getPassword())
+            );
+
+            return xmlMapper.readValue(unwrapXimss(Objects.requireNonNull(response)), Session.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -8,9 +8,9 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Builder
-@JacksonXmlRootElement(localName = "response")
 @NoArgsConstructor
 @AllArgsConstructor
+@JacksonXmlRootElement(localName = "response")
 public class Response extends BaseXIMSS {
     @JacksonXmlProperty(isAttribute = true)
     private String errorText;
