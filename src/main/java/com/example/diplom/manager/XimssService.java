@@ -23,6 +23,8 @@ public class XimssService {
 
     private final XmlMapper xmlMapper;
 
+    private final RestTemplate restTemplate;
+
     static private final String DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
 
     static private final String DEFAULT_URL_FOR_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
@@ -36,7 +38,7 @@ public class XimssService {
             headers.setContentType(MediaType.APPLICATION_XML);
             HttpEntity<String> request = new HttpEntity<>(res, headers);
 
-            final ResponseEntity<String> response = new RestTemplate().postForEntity(
+            final ResponseEntity<String> response = restTemplate.postForEntity(
                     requestXimssEntity.getClass().isAnnotationPresent(PreLoginRequest.class) ?
                             DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS
                             : DEFAULT_URL_FOR_LOGIN_OPERATIONS,
@@ -53,7 +55,7 @@ public class XimssService {
 
     public Session makeDumbLogin(final Login loginEntity) {
         try {
-            final String response = new RestTemplate().getForObject(
+            final String response = restTemplate.getForObject(
                     DUMB_LOGIN_URL,
                     String.class,
                     Map.of("userName", loginEntity.getUserName(),
