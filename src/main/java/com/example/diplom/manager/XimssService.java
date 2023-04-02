@@ -7,14 +7,12 @@ import com.example.diplom.ximss.response.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Objects;
 
 @Service
@@ -30,6 +28,9 @@ public class XimssService {
     static private final String DEFAULT_URL_FOR_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
 
     public static final String DUMB_LOGIN_URL = "http://localhost:8100/ximsslogin/?userName={userName}&password={password}";
+
+    public static final String LOGIN_URL = "http://localhost:8100/ximsslogin/?userName={userName}&password={password}";
+
 
     public <T, P extends BaseXIMSS> P sendRequest(final T requestXimssEntity, final Class<P> responseClass) {
         try {
@@ -55,19 +56,38 @@ public class XimssService {
 
     public Session makeDumbLogin(final Login loginEntity) {
         try {
-            final String response = restTemplate.getForObject(
-                    DUMB_LOGIN_URL,
-                    String.class,
-                    Map.of("userName", loginEntity.getUserName(),
-                            "password", loginEntity.getPassword())
-            );
+            HttpHeaders headers = new HttpHeaders();
+            String auth = loginEntity.getUserName() + ":" + loginEntity.getPassword();
+            byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
+            String authHeader = "Basic " + new String(encodedAuth);
+            headers.set("Authorization", authHeader);
 
-            return xmlMapper.readValue(unwrapXimss(Objects.requireNonNull(response)), Session.class);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response;
+            try {
+                response = restTemplate.exchange(
+                        DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS,
+                        HttpMethod.GET,
+                        entity,
+                        String.class);
+            } catch (Exception e) {
+                response = ResponseEntity.badRequest().build();
+            }
+            if (response.getStatusCode().equals(HttpStatusCode.valueOf(200))) {
+                return xmlMapper.readValue(unwrapXimss(Objects.requireNonNull(response.getBody())), Session.class);
+            } else {
+                return Session.builder().build();
+            }
+
+
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
     }
+
 
     private String wrapInXimssTag(final String xml) {
         return "<XIMSS>" + xml + "</XIMSS>";

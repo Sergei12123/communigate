@@ -1,8 +1,13 @@
 package com.example.diplom.configuration;
 
 import com.example.diplom.manager.XimssService;
+import com.example.diplom.service.CustomLogoutSuccessHandler;
+import com.example.diplom.service.MyEncoder;
 import com.example.diplom.service.RedirectAfterLoginFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.diplom.service.RedisRepository;
+import com.example.diplom.ximss.request.Login;
+import com.example.diplom.ximss.response.Session;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -18,24 +25,33 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    @Autowired
-    private XimssService ximssService;
+    private final XimssService ximssService;
+
+    private final RedisRepository redisRepository;
+
+    private final CustomLogoutSuccessHandler logoutSuccessHandler;
+
+    public static final String LOGIN_PAGE = "/login";
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/login", "/").permitAll()
+                        .requestMatchers(LOGIN_PAGE, "/").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin((form) -> form
-                        .loginPage("/login")
-                        .permitAll()
+                .formLogin(
+                        (form) -> form
+                                .loginPage(LOGIN_PAGE)
+                                .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
+                        .logoutSuccessHandler(logoutSuccessHandler)
                         .logoutUrl("/makeLogout")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
@@ -49,12 +65,18 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager() {
         return authentication -> {
             String username = authentication.getName();
             String password = authentication.getCredentials().toString();
-//            Session session = ximssService.makeDumbLogin(Login.builder().userName(username).password(password).build());
-            if (null == null) {
+            Session session = ximssService.makeDumbLogin(Login.builder().userName(username).password(password).build());
+            if (session.getUrlID() != null) {
+                redisRepository.set(username, MyEncoder.encodeValue(session.getUrlID()));
                 return new UsernamePasswordAuthenticationToken(username, password, List.of(new SimpleGrantedAuthority("ROLE_USER")));
             } else {
                 throw new BadCredentialsException("Invalid username or password");
