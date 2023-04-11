@@ -1,5 +1,6 @@
 package com.example.diplom.service;
 
+import com.example.diplom.manager.SessionService;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,20 +17,29 @@ public class RedisRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-    @Cacheable(value = "myCache", key = "username")
+    private final SessionService sessionService;
+
+    @Cacheable(value = "usernameCache", key = "#username")
     public String get(String username) {
         return MyEncoder.decodeValue(redisTemplate.opsForValue().get(username));
     }
 
-    public void set(final String username, final String key) {
-        redisTemplate.opsForValue().set(username, MyEncoder.encodeValue(key));
+    @Cacheable(value = "currentUserCache", key = "#root.methodName")
+    public String getSessionIdForCurrentUser() {
+        final String currentUserName = sessionService.getCurrentUserName();
+
+        return currentUserName == null ? null : MyEncoder.decodeValue(redisTemplate.opsForValue().get(currentUserName));
+    }
+
+    public void set(final String username, final String sessionId) {
+        redisTemplate.opsForValue().set(username, MyEncoder.encodeValue(sessionId));
     }
 
     public Map<String, String> getAll() {
         Map<String, String> keyValues = new HashMap<>();
         Set<String> keys = redisTemplate.keys("*");
         for (String key : Objects.requireNonNull(keys)) {
-            keyValues.put(key, redisTemplate.opsForValue().get(key));
+            keyValues.put(key, get(key));
         }
         return keyValues;
     }

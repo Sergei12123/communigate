@@ -76,7 +76,7 @@ public class WebSecurityConfig {
             String password = authentication.getCredentials().toString();
             Session session = ximssService.makeDumbLogin(Login.builder().userName(username).password(password).build());
             if (session.getUrlID() != null) {
-                redisRepository.set(username, MyEncoder.encodeValue(session.getUrlID()));
+                redisRepository.set(username, session.getUrlID());
                 return new UsernamePasswordAuthenticationToken(username, password, List.of(new SimpleGrantedAuthority("ROLE_USER")));
             } else {
                 throw new BadCredentialsException("Invalid username or password");

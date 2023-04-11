@@ -1,6 +1,7 @@
 package com.example.diplom.configuration;
 
 import com.example.diplom.service.MyEncoder;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,11 +40,6 @@ public class MyConfiguration {
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)
                 .build();
-    }
-
-    @Bean
-    public Map<String, MyEncoder> mapOfEncryptors(){
-        return new HashMap<>();
     }
 
 }

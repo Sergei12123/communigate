@@ -18,7 +18,7 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
         if (auth != null && auth.isAuthenticated()
                 && (request.getRequestURI().equals(request.getContextPath() + "/login")
                 || request.getRequestURI().equals(request.getContextPath() + "/"))) {
-            response.sendRedirect(request.getContextPath() + "/hello");
+            response.sendRedirect(request.getContextPath() + "/hello?login");
         } else {
             filterChain.doFilter(request, response);
         }
