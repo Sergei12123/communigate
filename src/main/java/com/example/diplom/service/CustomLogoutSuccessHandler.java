@@ -22,8 +22,8 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        redisRepository.delete(authentication.getName());
         ximssService.sendRequestToGetNothing(Bye.builder().build());
+        redisRepository.delete(authentication.getName());
         System.out.println("User logged out successfully!");
         response.sendRedirect("/login?logout");
     }
