@@ -1,9 +1,6 @@
 package com.example.diplom.controller;
 
-import com.example.diplom.manager.SessionService;
-import com.example.diplom.manager.XimssService;
 import com.example.diplom.service.MessageService;
-import com.example.diplom.service.RedisRepository;
 import dto.MessageDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -11,13 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 @Controller
 @AllArgsConstructor
 public class MessageController {
-
-    private final RedisRepository redisRepository;
 
     private final MessageService messageService;
 

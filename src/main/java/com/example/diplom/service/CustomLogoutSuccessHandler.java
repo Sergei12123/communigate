@@ -1,9 +1,11 @@
 package com.example.diplom.service;
 
+import com.example.diplom.manager.XimssService;
+import com.example.diplom.ximss.request.Bye;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -11,14 +13,17 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
+@AllArgsConstructor
 public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 
-    @Autowired
-    private RedisRepository redisRepository;
+    private final RedisRepository redisRepository;
+
+    private final XimssService ximssService;
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         redisRepository.delete(authentication.getName());
+        ximssService.sendRequestToGetNothing(Bye.builder().build());
         System.out.println("User logged out successfully!");
         response.sendRedirect("/login?logout");
     }

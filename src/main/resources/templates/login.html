@@ -17,10 +17,10 @@
                 <h1>Hello in Diplom project!</h1>
             </div>
             <div th:if="${param.error}" class="alert alert-danger mb-3 mt-3" role="alert">
-                Invalid username or password.
+                Неверный логин или пароль!
             </div>
             <div th:if="${param.logout}" class="alert alert-info mb-3 mt-3" role="alert">
-                You have been logged out.
+                Вы вышли из системы!
             </div>
 
             <form th:action="@{/login}" method="post">
