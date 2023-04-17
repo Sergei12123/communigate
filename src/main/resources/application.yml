@@ -1,0 +1,21 @@
+server:
+  ssl:
+    keyAlias: tomcat
+    key-store-password: qwerty$4
+    enabled: true
+    key-store: classpath:keystore.p12
+    keyStoreType: PKCS12
+  port: 8443
+  servlet:
+    session:
+      timeout: 60m
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+spring:
+  data:
+    redis:
+      port: 6379
+      host: localhost

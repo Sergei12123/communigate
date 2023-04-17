@@ -15,10 +15,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.util.List;
 
@@ -39,7 +42,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+                .sessionManagement()
+                .invalidSessionUrl(LOGIN_PAGE)
+                .and()
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(LOGIN_PAGE, "/").permitAll()
                         .anyRequest().authenticated()
@@ -56,11 +61,22 @@ public class WebSecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .permitAll())
-                .addFilterAfter(new RedirectAfterLoginFilter(), UsernamePasswordAuthenticationFilter.class)
-
+                .addFilterAfter(redirectAfterLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         ;
 
         return http.build();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    @Bean
+    public OncePerRequestFilter redirectAfterLoginFilter() {
+        RedirectAfterLoginFilter redirectAfterLoginFilter = new RedirectAfterLoginFilter();
+        redirectAfterLoginFilter.setXimssService(ximssService);
+        return redirectAfterLoginFilter;
     }
 
     @Bean
