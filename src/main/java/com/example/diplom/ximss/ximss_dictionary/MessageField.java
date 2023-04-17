@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.ximss_dictionary;
 
-public enum MessageFields {
+public enum MessageField {
 
     FLAGS,
     FROM,

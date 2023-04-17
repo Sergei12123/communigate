@@ -2,6 +2,7 @@ package com.example.diplom.ximss.request;
 
 
 import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.ximss_dictionary.RuleType;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Builder;
@@ -11,18 +12,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@JacksonXmlRootElement(localName = "folderRead")
-public class FolderRead extends BaseXIMSS {
+@JacksonXmlRootElement(localName = "ruleRead")
+public class RuleRead extends BaseXIMSS {
 
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private String folder = "INBOX";
+    private RuleType type = RuleType.MAIL_IN;
 
-    @JacksonXmlProperty(isAttribute = true, localName = "UID")
-    private Long uid;
-
-    @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private int totalSizeLimit = 10000000;
+    private String name;
 
 }

@@ -1,5 +1,6 @@
 package com.example.diplom.service;
 
+import com.example.diplom.dto.MessageDTO;
 import com.example.diplom.manager.SessionService;
 import com.example.diplom.manager.XimssService;
 import com.example.diplom.ximss.request.*;
@@ -7,7 +8,6 @@ import com.example.diplom.ximss.response.FolderMessage;
 import com.example.diplom.ximss.response.FolderReport;
 import com.example.diplom.ximss.response.Mime;
 import com.example.diplom.ximss.response_request.Email;
-import dto.MessageDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class MessageService {
 
     private final SessionService sessionService;
 
-    public List<MessageDTO> getInboxEmailsPrewiew() {
+    public List<MessageDTO> getInboxMessages() {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
         final List<FolderReport> folderReports = ximssService.sendRequestToGetList(FolderBrowse.builder().build(), FolderReport.class);
         final List<FolderMessage> folderMessages = folderReports.stream()

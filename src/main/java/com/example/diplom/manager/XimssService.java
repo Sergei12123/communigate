@@ -103,7 +103,16 @@ public class XimssService {
                 xmlLastLength = xmlStringTemp.length();
                 final JsonNode jsonNode = xmlMapper.readTree(xmlStringTemp).get(localName);
                 if (jsonNode != null) {
-                    resultList.add(0, xmlMapper.treeToValue(jsonNode, returnType));
+                    try {
+                        resultList.add(0, xmlMapper.treeToValue(jsonNode, returnType));
+                    } catch (Exception e) {
+                        try {
+                            resultList.add(0, xmlMapper.readValue(unwrapXimss(xmlString), returnType));
+                            return resultList;
+                        } catch (Exception e1) {
+                            System.out.println(e1);
+                        }
+                    }
                     xmlStringTemp = xmlStringTemp.replace(xmlMapper.writeValueAsString(resultList.get(0)), "");
                 }
             } while (xmlLastLength > xmlStringTemp.length());

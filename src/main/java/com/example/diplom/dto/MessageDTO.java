@@ -1,13 +1,10 @@
-package dto;
+package com.example.diplom.dto;
 
 import com.example.diplom.ximss.response.FolderMessage;
-import com.example.diplom.ximss.response_request.Email;
 import lombok.*;
-import org.springframework.stereotype.Service;
 
 @Getter
 @Setter
-@Service
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,6 +25,6 @@ public class MessageDTO {
         this.title = folderMessage.getEmail().getSubject();
         this.text = folderMessage.getEmail().getMime().getMessageText();
         this.uid = folderMessage.getUid();
-        this.isSelected=false;
+        this.isSelected = false;
     }
 }

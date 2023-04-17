@@ -13,53 +13,77 @@
 
 
 <div class="container">
-    <div th:if="${param.login}" class="alert alert-info mb-3 mt-3" role="alert">
-        Добро пожаловать!
-    </div>
-
-    <div th:if="${param.messageSent}" class="alert alert-success mb-3 mt-3" role="alert">
-        Письмо отправлено пользователю <span th:text="${param.userName}"></span>
-    </div>
-
-    <div th:if="${param.messageDeleted}" class="alert alert-danger mb-3 mt-3" role="alert">
-        Письмо удалено
-    </div>
-
-    <div th:if="${param.messagesDeleted}" class="alert alert-danger mb-3 mt-3" role="alert">
-        Письма удалены
-    </div>
-
-    <br>
-    <form th:action="@{/makeLogout}" method="post">
-        <button type="submit" class="btn btn-warning">Выйти</button>
-    </form>
-    <br>
-
-
-    <form th:action="@{/deleteMessages}" th:method="post">
-        <div class="btn-group">
-            <a href="/new-message" class="btn btn-primary me-2">Написать письмо</a>
-            <button type="submit" class="btn btn-danger me-2">Удалить</button>
+    <div class="row">
+        <div class="col-1 fixed-top ms-2 me-3">
+            <br>
+            <br>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/hello">Сообщения</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rules">Правила</a>
+                </li>
+            </ul>
+            <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
+                <button type="submit" class="btn btn-warning">Выйти</button>
+            </form>
         </div>
-
-
-        <div class="card mt-3 mb-3" th:each="message : ${messages}">
-
-            <div class="form-check card-header ">
-                <input class="form-check-input p-3 gx-10 ms-0 me-2" type="checkbox"
-                       name="selectedMessages"
-                       th:value="${message.uid}"
-                       th:checked="${message.isSelected}"
-                       id="flexCheckDefault"/>
-                <div class="h2 mt-0" th:text="${message.userLogin}">login</div>
+        <div class="col-11">
+            <br>
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center mb-3 mt-3">
+                    <div class="badge bg-success text-wrap text-center" style="width: 80%;">
+                        <h1>Список писем</h1>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <h5 class="card-title" th:text="${message.title}">title</h5>
-                <p class="card-text" th:text="${message.text}">text</p>
-                <a href="#" class="btn btn-primary">Перейти куда-нибудь</a>
+
+            <div th:if="${param.login}" class="alert alert-info text-center mb-3 mt-3" role="alert">
+                Добро пожаловать!
             </div>
+
+            <div th:if="${param.messageSent}" class="alert text-center alert-success mb-3 mt-3" role="alert">
+                Письмо отправлено пользователю <span th:text="${param.userName}"></span>
+            </div>
+
+            <div th:if="${param.messageDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
+                Письмо удалено
+            </div>
+
+            <div th:if="${param.messagesDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
+                Письма удалены
+            </div>
+
+            <br>
+
+            <form th:action="@{/deleteMessages}" th:method="post">
+                <div class="btn-group">
+                    <a href="/new-message" class="btn btn-primary me-2">Написать письмо</a>
+                    <button type="submit" class="btn btn-danger me-2">Удалить</button>
+                </div>
+
+
+                <div class="card mt-3 mb-3" th:each="message : ${messages}">
+
+                    <div class="form-check card-header ">
+                        <input class="form-check-input p-3 gx-10 ms-0 me-2" type="checkbox"
+                               name="selectedMessages"
+                               th:value="${message.uid}"
+                               th:checked="${message.isSelected}"
+                               id="flexCheckDefault"/>
+                        <div class="h2 mt-0" th:text="${message.userLogin}">login</div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${message.title}">title</h5>
+                        <p class="card-text" th:text="${message.text}">text</p>
+                        <a href="#" class="btn btn-primary">Перейти куда-нибудь</a>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
+    <br>
 </div>
 
 

@@ -12,33 +12,58 @@
 <body>
 
 <div class="container">
-    <form th:action="@{/sendMessage}" th:method="post" th:object="${message}">
-
-        <br>
-        <br>
-        <h5 class="form-label">Получатель</h5>
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" aria-describedby="basic-addon2" th:field="*{userLogin}"/>
-            <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
+    <div class="row">
+        <div class="col-1 fixed-top ms-2 me-3">
+            <br>
+            <br>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/hello">Сообщения</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/rules">Правила</a>
+                </li>
+            </ul>
+            <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
+                <button type="submit" class="btn btn-warning">Выйти</button>
+            </form>
         </div>
+        <div class="col-11">
+            <br>
+            <div class="row justify-content-center">
+                <div class="col-md-6 text-center mb-3 mt-3">
+                    <div class="badge bg-success text-wrap text-center" style="width: 80%;">
+                        <h1>Написать письмо</h1>
+                    </div>
+                </div>
+            </div>
+            <form th:action="@{/sendMessage}" th:method="post" th:object="${message}">
 
-        <h5 class="form-label">Тема</h5>
-        <input type="text" class="form-control" th:field="*{title}"/>
+                <br>
+                <br>
+                <h5 class="form-label">Получатель</h5>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" aria-describedby="basic-addon2" th:field="*{userLogin}"/>
+                    <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
+                </div>
 
-        <br>
-        <h5 class="form-label">Текст сообщения</h5>
-        <textarea class="form-control" placeholder="Напишите что-нибудь" style="height: 200px"
-                  th:field="*{text}"></textarea>
+                <h5 class="form-label">Тема</h5>
+                <input type="text" class="form-control" th:field="*{title}"/>
 
-        <br>
-        <br>
-        <div class="btn-group">
-            <a href="/hello" class="btn btn-primary me-2">Отмена</a>
-            <button type="submit" class="btn btn-primary me-2">Отправить</button>
+                <br>
+                <h5 class="form-label">Текст сообщения</h5>
+                <textarea class="form-control" placeholder="Напишите что-нибудь" style="height: 200px"
+                          th:field="*{text}"></textarea>
+
+                <br>
+                <br>
+                <div class="btn-group">
+                    <a href="/hello" class="btn btn-danger me-2">Отмена</a>
+                    <button type="submit" class="btn btn-primary me-2">Отправить</button>
+                </div>
+            </form>
         </div>
-    </form>
-
-
+    </div>
 </div>
 
 

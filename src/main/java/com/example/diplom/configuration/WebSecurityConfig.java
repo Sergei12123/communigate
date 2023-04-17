@@ -2,7 +2,6 @@ package com.example.diplom.configuration;
 
 import com.example.diplom.manager.XimssService;
 import com.example.diplom.service.CustomLogoutSuccessHandler;
-import com.example.diplom.service.MyEncoder;
 import com.example.diplom.service.RedirectAfterLoginFilter;
 import com.example.diplom.service.RedisRepository;
 import com.example.diplom.ximss.request.Login;

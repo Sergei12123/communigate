@@ -2,7 +2,6 @@ package com.example.diplom.service;
 
 import com.example.diplom.manager.XimssService;
 import com.example.diplom.ximss.request.Bye;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -21,7 +20,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
     private final XimssService ximssService;
 
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         ximssService.sendRequestToGetNothing(Bye.builder().build());
         redisRepository.delete(authentication.getName());
         System.out.println("User logged out successfully!");
