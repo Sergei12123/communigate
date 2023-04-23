@@ -2,7 +2,6 @@ package com.example.diplom.configuration;
 
 import com.example.diplom.manager.XimssService;
 import com.example.diplom.service.CustomLogoutHandler;
-import com.example.diplom.service.CustomLogoutSuccessHandler;
 import com.example.diplom.service.RedirectAfterLoginFilter;
 import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.request.Login;
@@ -34,8 +33,6 @@ public class WebSecurityConfig {
     private final XimssService ximssService;
 
     private final UserCache userCache;
-
-    private final CustomLogoutSuccessHandler logoutSuccessHandler;
 
     private final CustomLogoutHandler logoutHandler;
 
