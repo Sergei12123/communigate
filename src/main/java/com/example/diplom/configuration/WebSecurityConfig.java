@@ -1,9 +1,10 @@
 package com.example.diplom.configuration;
 
 import com.example.diplom.manager.XimssService;
+import com.example.diplom.service.CustomLogoutHandler;
 import com.example.diplom.service.CustomLogoutSuccessHandler;
 import com.example.diplom.service.RedirectAfterLoginFilter;
-import com.example.diplom.service.RedisRepository;
+import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.request.Login;
 import com.example.diplom.ximss.response.Session;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,12 @@ public class WebSecurityConfig {
 
     private final XimssService ximssService;
 
-    private final RedisRepository redisRepository;
+    private final UserCache userCache;
 
     private final CustomLogoutSuccessHandler logoutSuccessHandler;
+
+    private final CustomLogoutHandler logoutHandler;
+
 
     public static final String LOGIN_PAGE = "/login";
 
@@ -42,26 +46,28 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement()
-                .invalidSessionUrl(LOGIN_PAGE)
-                .and()
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers(LOGIN_PAGE, "/").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(
-                        (form) -> form
-                                .loginPage(LOGIN_PAGE)
-                                .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessHandler(logoutSuccessHandler)
-                        .logoutUrl("/makeLogout")
-                        .deleteCookies("JSESSIONID")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .permitAll())
-                .addFilterAfter(redirectAfterLoginFilter(), UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement()
+            .invalidSessionUrl(LOGIN_PAGE)
+            .and()
+            .authorizeHttpRequests((requests) -> requests
+                .requestMatchers(LOGIN_PAGE, "/").permitAll()
+                .anyRequest().authenticated()
+            )
+            .formLogin(
+                (form) -> form
+                    .loginPage(LOGIN_PAGE)
+                    .permitAll()
+            )
+            .logout(logout -> logout
+//                .logoutSuccessHandler(logoutSuccessHandler)
+                .logoutUrl("/makeLogout")
+                .logoutSuccessUrl("/login?logout")
+                .addLogoutHandler(logoutHandler)
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .permitAll())
+            .addFilterAfter(redirectAfterLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         ;
 
         return http.build();
@@ -91,7 +97,7 @@ public class WebSecurityConfig {
             String password = authentication.getCredentials().toString();
             Session session = ximssService.makeDumbLogin(Login.builder().userName(username).password(password).build());
             if (session.getUrlID() != null) {
-                redisRepository.set(username, session.getUrlID());
+                userCache.set(username, session.getUrlID());
                 return new UsernamePasswordAuthenticationToken(username, password, List.of(new SimpleGrantedAuthority("ROLE_USER")));
             } else {
                 throw new BadCredentialsException("Invalid username or password");

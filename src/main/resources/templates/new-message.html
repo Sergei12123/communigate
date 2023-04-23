@@ -29,26 +29,37 @@
             </form>
         </div>
         <div class="col-11">
-            <br>
-            <div class="row justify-content-center">
-                <div class="col-md-6 text-center mb-3 mt-3">
-                    <div class="badge bg-success text-wrap text-center" style="width: 80%;">
-                        <h1>Написать письмо</h1>
-                    </div>
-                </div>
-            </div>
+
             <form th:action="@{/sendMessage}" th:method="post" th:object="${message}">
+                <input type="hidden" th:field="*{reply}">
+                <input type="hidden" th:field="*{replyText}">
 
                 <br>
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center mb-3 mt-3">
+                        <div class="badge bg-success text-wrap text-center" style="width: 80%;">
+                            <h1 th:text="*{reply}?'Ответить на сообщение':'Написать письмо'">Ответить на сообщение</h1>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${message.reply}">
+                    <br>
+                    <div class="card">
+                        <div class="card-header ">
+                            <div class="h6 mt-0" th:text="${message.replyText}">replyText</div>
+                        </div>
+                    </div>
+                </div>
                 <br>
                 <h5 class="form-label">Получатель</h5>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" aria-describedby="basic-addon2" th:field="*{userLogin}"/>
+                    <input type="text" class="form-control" aria-describedby="basic-addon2" th:field="*{userLogin}"
+                           th:readonly="*{reply}"/>
                     <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
                 </div>
 
                 <h5 class="form-label">Тема</h5>
-                <input type="text" class="form-control" th:field="*{title}"/>
+                <input type="text" class="form-control" th:field="*{title}" th:readonly="*{reply}"/>
 
                 <br>
                 <h5 class="form-label">Текст сообщения</h5>

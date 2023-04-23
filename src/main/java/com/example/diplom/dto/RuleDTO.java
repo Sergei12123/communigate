@@ -19,16 +19,18 @@ public class RuleDTO {
 
     private RuleType type;
 
+    private String oldName;
+
     private String name;
 
     @Builder.Default
     private RulePriority priority = RulePriority.FIVE;
 
     @Builder.Default
-    private List<Condition> conditionList = new ArrayList<>(List.of(Condition.builder().build()));
+    private List<Condition> conditionList = new ArrayList<>();
 
     @Builder.Default
-    private List<Action> actionList = new ArrayList<>(List.of(Action.builder().build()));
+    private List<Action> actionList = new ArrayList<>();
 
     private String comment;
 
@@ -42,6 +44,7 @@ public class RuleDTO {
 
     public RuleDTO(final Rule rule) {
         this.type = rule.getType();
+        this.oldName = rule.getName();
         this.name = rule.getName();
         this.priority = rule.getPriority();
         this.conditionList = rule.getConditionList();

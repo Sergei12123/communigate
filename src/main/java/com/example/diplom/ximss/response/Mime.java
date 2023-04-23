@@ -30,6 +30,9 @@ public class Mime {
     @JacksonXmlProperty(isAttribute = true, localName = "Type-format")
     private String typeFormat;
 
+    @JacksonXmlProperty(isAttribute = true)
+    private String format;
+
     @JacksonXmlText
     private String messageText;
 }

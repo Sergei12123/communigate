@@ -40,26 +40,31 @@
                 </div>
             </div>
 
-            <br>
-
-
-            <br>
-            <div class="btn-group">
-
-                <a href="/new-rule" class="btn btn-primary me-2">Создать правило</a>
-                <button type="submit" class="btn btn-danger me-2">Удалить</button>
+            <div th:if="${param.ruleDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
+                Правило удалено
             </div>
 
+            <div th:if="${param.rulesDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
+                Правила удалены
+            </div>
+            <br>
 
-            <div th:each="rule: ${rules}">
-                <div class="card mt-3 mb-3">
+            <form th:action="@{/deleteRules}"
+                  th:method="post">
+
+                <div class="btn-group">
+                    <a href="/new-rule" class="btn btn-primary me-2">Создать правило</a>
+                    <button type="submit" class="btn btn-danger me-2">Удалить</button>
+                </div>
+                <div th:each="rule, index: ${rules}" class="card mt-3 mb-3">
                     <div class="form-check card-header ">
-                        <input class="form-check-input p-3 gx-10 ms-0 me-2" type="checkbox"
-                               name="selectedMessages"
-                               th:value="${rule.getName()}"
-                               th:checked="${rule.isSelected()}"
+                        <input class="form-check-input p-3 gx-10 ms-0 me-2"
+                               type="checkbox"
+                               name="selectedRules"
+                               th:value="${rule.name}"
+                               th:checked="${rule.selected}"
                                id="flexCheckDefault"/>
-                        <div class="h2 mt-0" th:text="${rule.getName()}">ruleName</div>
+                        <div class="h2 mt-0" th:text="${rule.name}">ruleName</div>
                     </div>
                     <div class="card-body">
 
@@ -81,15 +86,16 @@
                                 </td>
                                 <td th:text="${condition.getValue()}">3</td>
                             </tr>
-
-                            <tr></tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-hover">
                             <thead class="table">
-
                             <tr>
-                                <th>Действие</th>
-                                <th colspan="2">Параметр</th>
+                                <th class="col-1">Действие</th>
+                                <th class="col-4">Параметр</th>
                             </tr>
                             </thead>
+                            <tbody class="table">
                             <tr th:each="action, index : ${rule.getActionList()}">
                                 <td th:text="${action.getOpCode().getRuValue()}">1
                                 </td>
@@ -98,14 +104,14 @@
                                 </td>
                             </tr>
                             </tbody>
+
                         </table>
-                        <form th:action="@{/editRule}" th:object="${rule}" th:method="post">
-                            <button type="submit" class="btn btn-primary">Редактировать</button>
-                            <input type="hidden" th:name="ruleName" th:value="${rule.name}"/>
-                        </form>
+                        <button type="submit" class="btn btn-primary"
+                                th:formaction="@{/editRule/{name}(name=${rule.name})}">Редактировать
+                        </button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>

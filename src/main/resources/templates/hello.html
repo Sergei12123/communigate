@@ -65,20 +65,36 @@
 
 
                 <div class="card mt-3 mb-3" th:each="message : ${messages}">
-
                     <div class="form-check card-header ">
-                        <input class="form-check-input p-3 gx-10 ms-0 me-2" type="checkbox"
+                        <input class="form-check-input p-3 gx-10 ms-0 me-2"
+                               type="checkbox"
                                name="selectedMessages"
                                th:value="${message.uid}"
-                               th:checked="${message.isSelected}"
+                               th:checked="${message.selected}"
                                id="flexCheckDefault"/>
-                        <div class="h2 mt-0" th:text="${message.userLogin}">login</div>
+                        <div class="h2 mt-0" th:text="${message.userLogin+(message.reply?' ↩':'')}">login
+                        </div>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body ps-5 pe-5">
+                        <div th:if="${message.reply}">
+                            <div class="card">
+                                <div class="card-header ">
+                                    <div class="h5 mt-0">Ваше сообщение</div>
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text" th:text="${message.replyText}">replyText</p>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
                         <h5 class="card-title" th:text="${message.title}">title</h5>
                         <p class="card-text" th:text="${message.text}">text</p>
-                        <a href="#" class="btn btn-primary">Перейти куда-нибудь</a>
+                        <button class="btn btn-primary" th:formaction="@{/replyToMessage/{uid}(uid=${message.uid})}">
+                            Ответить
+                        </button>
                     </div>
+
+
                 </div>
             </form>
         </div>

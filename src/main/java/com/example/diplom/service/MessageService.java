@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.example.diplom.dictionary.MessagePattern.CASUAL_MESSAGE_PATTERN;
+import static com.example.diplom.dictionary.MessagePattern.MESSAGE_REPLY_PATTERN;
+
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -26,31 +29,36 @@ public class MessageService {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
         final List<FolderReport> folderReports = ximssService.sendRequestToGetList(FolderBrowse.builder().build(), FolderReport.class);
         final List<FolderMessage> folderMessages = folderReports.stream()
-                .map(FolderReport::getUid)
-                .map(uid -> ximssService.sendRequestToGetObject(FolderRead.builder().uid(uid).build(), FolderMessage.class))
-                .toList();
+            .map(FolderReport::getUid)
+            .map(uid -> ximssService.sendRequestToGetObject(FolderRead.builder().uid(uid).build(), FolderMessage.class))
+            .toList();
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
         return folderMessages.stream()
-                .map(MessageDTO::new).toList();
+            .map(MessageDTO::new).toList();
 
     }
 
 
-    public void sendMessage(final MessageDTO messageDTO) {
+    public void sendMessage(final MessageDTO messageDTO, final boolean isReply) {
         ximssService.sendRequestToGetNothing(MessageSubmit.builder().email(
-                Email.builder()
-                        .from(sessionService.getCurrentUserName())
-                        .subject(messageDTO.getTitle())
-                        .to(messageDTO.getUserLogin())
-                        .xMailer("SuperClient v7.77")
-                        .mime(
-                                Mime.builder()
-                                        .type("text")
-                                        .subtype("plain")
-                                        .messageText(messageDTO.getText())
-                                        .build()
-                        )
+            Email.builder()
+                .from(sessionService.getCurrentUserName())
+                .subject(messageDTO.getTitle())
+                .to(messageDTO.getUserLogin())
+                .xMailer("SuperClient v7.77")
+                .mime(
+                    Mime.builder()
+                        .type("text")
+                        .subtype("plain")
+                        .messageText(isReply ?
+                            String.format(MESSAGE_REPLY_PATTERN.getValue(),
+                                messageDTO.getReplyText(),
+                                messageDTO.getText())
+                            : String.format(CASUAL_MESSAGE_PATTERN.getValue(),
+                            messageDTO.getText()).toString())
                         .build()
+                )
+                .build()
         ).build());
     }
 
@@ -59,5 +67,12 @@ public class MessageService {
         ximssService.sendRequestToGetNothing(MessageMark.builder().flags("Deleted").uid(Arrays.stream(selectedMessages).toList()).build());
         ximssService.sendRequestToGetNothing(FolderExpunge.builder().build());
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
+    }
+
+    public MessageDTO getMessageByUid(final Long uid) {
+        ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
+        final FolderMessage folderMessage = ximssService.sendRequestToGetObject(FolderRead.builder().uid(uid).build(), FolderMessage.class);
+        ximssService.sendRequestToGetNothing(FolderClose.builder().build());
+        return new MessageDTO(folderMessage);
     }
 }

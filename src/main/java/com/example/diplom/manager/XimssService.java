@@ -1,7 +1,7 @@
 package com.example.diplom.manager;
 
 import com.example.diplom.annotation.PreLoginRequest;
-import com.example.diplom.service.RedisRepository;
+import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.BaseXIMSS;
 import com.example.diplom.ximss.request.Login;
 import com.example.diplom.ximss.response.Session;
@@ -28,7 +28,7 @@ public class XimssService {
 
     private final RestTemplate restTemplate;
 
-    private final RedisRepository redisRepository;
+    private final UserCache userCache;
 
     private final SessionService sessionService;
 
@@ -45,17 +45,17 @@ public class XimssService {
 
     public <T extends BaseXIMSS> void sendRequestToGetNothing(final T requestXimssEntity) {
         restTemplate.postForObject(
-                getNecessaryUrl(requestXimssEntity),
-                getRequestWithBody(requestXimssEntity),
-                String.class
+            getNecessaryUrl(requestXimssEntity),
+            getRequestWithBody(requestXimssEntity),
+            String.class
         );
     }
 
     public <T extends BaseXIMSS, P> List<P> sendRequestToGetList(final T requestXimssEntity, final Class<P> responseClass) {
         final String response = restTemplate.postForObject(
-                getNecessaryUrl(requestXimssEntity),
-                getRequestWithBody(requestXimssEntity),
-                String.class
+            getNecessaryUrl(requestXimssEntity),
+            getRequestWithBody(requestXimssEntity),
+            String.class
         );
 
         return response == null ? null : getListFromXML(response, responseClass);
@@ -79,10 +79,10 @@ public class XimssService {
         ResponseEntity<String> response;
         try {
             response = restTemplate.exchange(
-                    DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS,
-                    HttpMethod.POST,
-                    entity,
-                    String.class);
+                DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS,
+                HttpMethod.POST,
+                entity,
+                String.class);
         } catch (Exception e) {
             response = ResponseEntity.badRequest().build();
         }
@@ -160,7 +160,7 @@ public class XimssService {
         String res = getXML(requestXimssEntity);
         HttpHeaders headers = new HttpHeaders();
         headers.setCacheControl(CacheControl.noCache());
-        headers.setContentType(MediaType.APPLICATION_XML);
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         headers.setAccept(List.of(MediaType.ALL));
         headers.setConnection("keep-alive");
         return new HttpEntity<>(res, headers);
@@ -171,7 +171,7 @@ public class XimssService {
         if (requestXimssEntity.getClass().isAnnotationPresent(PreLoginRequest.class)) {
             url = DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS;
         } else if (sessionService.getCurrentUserName() != null) {
-            url = String.format(DEFAULT_SESSION_SYNC_REQUEST_URL, redisRepository.getSessionIdForCurrentUser());
+            url = String.format(DEFAULT_SESSION_SYNC_REQUEST_URL, userCache.getSessionIdForCurrentUser());
         } else {
             url = DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS;
         }

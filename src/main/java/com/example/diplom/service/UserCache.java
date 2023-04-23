@@ -13,7 +13,7 @@ import java.util.Set;
 
 @Repository
 @AllArgsConstructor
-public class RedisRepository {
+public class UserCache {
 
     private final RedisTemplate<String, String> redisTemplate;
 

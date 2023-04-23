@@ -16,28 +16,44 @@ public class MessageController {
 
     @GetMapping("/new-message")
     private String newMessagePage(Model model) {
-        model.addAttribute("message", MessageDTO.builder().build());
+        if (model.getAttribute("message") == null)
+            model.addAttribute("message", MessageDTO.builder().build());
         return "new-message";
     }
 
     @PostMapping("/sendMessage")
     private String sendMessage(@ModelAttribute("message") MessageDTO messageDTO, RedirectAttributes redirectAttributes) {
-        messageService.sendMessage(messageDTO);
-        redirectAttributes.addAttribute("messageSent");
+        messageService.sendMessage(messageDTO, messageDTO.isReply());
+        redirectAttributes.addAttribute("messageSent", true);
         redirectAttributes.addAttribute("userName", messageDTO.getUserLogin());
         return "redirect:/hello";
     }
 
     @PostMapping("/deleteMessages")
-    private String deleteMessages(@RequestParam("selectedMessages") Long[] selectedMessages) {
+    private String deleteMessages(@RequestParam(value = "selectedMessages", required = false) Long[] selectedMessages) {
+        if (selectedMessages == null) return "redirect:/hello";
         messageService.deleteMessages(selectedMessages);
-        return "redirect:/hello" + (selectedMessages.length == 0 ? null : selectedMessages.length == 1 ? "?messageDeleted" : "?messagesDeleted");
+        return "redirect:/hello" + (selectedMessages.length == 1 ? "?messageDeleted" : "?messagesDeleted");
     }
 
     @RequestMapping("/hello")
     private String helloPage(Model model) {
         model.addAttribute("messages", messageService.getInboxMessages());
         return "hello";
+    }
+
+    @PostMapping(value = "/replyToMessage/{uid}")
+    public String editRule(@PathVariable("uid") Long uid, RedirectAttributes redirectAttributes) {
+        final MessageDTO tempDto = messageService.getMessageByUid(uid);
+
+        redirectAttributes.addFlashAttribute("message",
+            MessageDTO.builder()
+                .reply(true)
+                .replyText(tempDto.getText())
+                .userLogin(tempDto.getUserLogin())
+                .title(tempDto.getTitle())
+                .build());
+        return "redirect:/new-message";
     }
 
 }

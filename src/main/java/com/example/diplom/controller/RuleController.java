@@ -7,11 +7,10 @@ import com.example.diplom.ximss.response_request.Condition;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @AllArgsConstructor
@@ -27,8 +26,14 @@ public class RuleController {
 
     @GetMapping("/new-rule")
     private String newMessagePage(Model model) {
-        if (model.getAttribute("rule") == null)
-            model.addAttribute("rule", RuleDTO.builder().build());
+        if (model.getAttribute("rule") == null) {
+            final RuleDTO dto = RuleDTO.builder().build();
+            dto.getConditionList().add(Condition.builder().build());
+            dto.setRemoveConditionAllow(true);
+            dto.setRemoveActionAllow(true);
+            dto.getActionList().add(Action.builder().build());
+            model.addAttribute("rule", dto);
+        }
         return "new-rule";
     }
 
@@ -42,7 +47,7 @@ public class RuleController {
     @PostMapping(value = "/removeCondition")
     public String removeCondition(@ModelAttribute("rule") RuleDTO dto) {
         dto.getConditionList().remove(dto.getConditionList().size() - 1);
-        if (dto.getConditionList().size() == 1) {
+        if (dto.getConditionList().size() == 0) {
             dto.setRemoveConditionAllow(false);
         }
         return "new-rule";
@@ -58,7 +63,7 @@ public class RuleController {
     @PostMapping(value = "/removeAction")
     public String removeAction(@ModelAttribute("rule") RuleDTO dto) {
         dto.getActionList().remove(dto.getActionList().size() - 1);
-        if (dto.getActionList().size() == 1) {
+        if (dto.getActionList().size() == 0) {
             dto.setRemoveActionAllow(false);
         }
         return "new-rule";
@@ -66,16 +71,29 @@ public class RuleController {
 
     @PostMapping(value = "/createRule")
     public String createRule(@ModelAttribute("rule") RuleDTO dto) {
+        if (!dto.getOldName().equals(dto.getName()))
+            ruleService.renameRule(dto);
         ruleService.createRule(dto);
         return "redirect:/rules";
     }
 
-    @PostMapping(value = "/editRule")
-    public String editRule(@RequestParam("ruleName") String ruleName, RedirectAttributes redirectAttributes) {
+    @PostMapping(value = "/editRule/{name}")
+    public String editRule(@PathVariable("name") String ruleName, RedirectAttributes redirectAttributes) {
         final RuleDTO dto = ruleService.getRuleWitnName(ruleName);
         dto.setEdit(true);
+        dto.setRemoveConditionAllow(dto.getConditionList().size() > 0);
+        dto.setRemoveActionAllow(dto.getActionList().size() > 0);
+
         redirectAttributes.addFlashAttribute("rule", dto);
         return "redirect:/new-rule";
+    }
+
+    @PostMapping("/deleteRules")
+    private String deleteMessages(@RequestParam(value = "selectedRules", required = false) List<String> selectedRules, Model model) {
+        if (selectedRules == null)
+            return "redirect:/rules";
+        ruleService.deleteRules(selectedRules);
+        return "redirect:/rules" + (selectedRules.size() == 1 ? "?ruleDeleted" : "?rulesDeleted");
     }
 
 

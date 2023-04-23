@@ -2,9 +2,7 @@ package com.example.diplom.service;
 
 import com.example.diplom.dto.RuleDTO;
 import com.example.diplom.manager.XimssService;
-import com.example.diplom.ximss.request.RuleList;
-import com.example.diplom.ximss.request.RuleRead;
-import com.example.diplom.ximss.request.RuleSet;
+import com.example.diplom.ximss.request.*;
 import com.example.diplom.ximss.response_request.Rule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,4 +35,11 @@ public class RuleService {
         ximssService.sendRequestToGetNothing(new RuleSet(ruleDTO));
     }
 
+    public void renameRule(final RuleDTO ruleDTO) {
+        ximssService.sendRequestToGetNothing(RuleRename.builder().name(ruleDTO.getOldName()).newName(ruleDTO.getName()).build());
+    }
+
+    public void deleteRules(List<String> selectedRules) {
+        selectedRules.forEach(ruleName -> ximssService.sendRequestToGetNothing(RuleRemove.builder().name(ruleName).build()));
+    }
 }

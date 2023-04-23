@@ -8,7 +8,7 @@
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
 
-    <title>Создание правила</title>
+    <title>Правило</title>
 </head>
 <body>
 
@@ -36,10 +36,14 @@
                 <div class="row justify-content-center">
                     <div class="col-md-6 text-center mb-3 mt-3">
                         <div class="badge bg-success text-wrap text-center" style="width: 80%;">
-                            <h1 th:text="*{isEdit()}?'Редактирование правила':'Создание правила'">Создание правила</h1>
+                            <h1 th:text="*{edit}?'Редактирование правила':'Создание правила'">Создание правила</h1>
                         </div>
                     </div>
                 </div>
+                <input type="hidden" th:field="*{edit}">
+                <input type="hidden" th:field="*{oldName}">
+                <input type="hidden" th:field="*{removeActionAllow}">
+                <input type="hidden" th:field="*{removeConditionAllow}">
 
                 <br>
 
@@ -50,10 +54,13 @@
                     </button>
                 </div>
                 <br>
-
+                <br>
                 <h3>Название правила</h3>
-                <input type="text" th:disabled="${rule.isEdit()}" class="form-control" th:value="*{getName()}"
+
+                <input class="form-control"
+                       th:value="*{name}"
                        th:field="*{name}"/>
+
 
                 <br>
                 <div class="row">
@@ -105,8 +112,10 @@
                         </select>
                     </div>
                     <div class="col">
-                        <input type="text" class="form-control" th:field="*{conditionList[__${index.index}__].value}"
-                               th:name="|conditionList[${index.index}].value|"/>
+                        <input type="text" class="form-control"
+                               th:field="*{conditionList[__${index.index}__].value}"
+                               th:name="|conditionList[${index.index}].value|"
+                               th:value="${condition.value}"/>
                     </div>
                 </div>
                 <br>
