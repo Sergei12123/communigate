@@ -27,8 +27,12 @@ public class UserCache {
     @Cacheable(value = "currentUserCache", key = "#root.methodName")
     public String getSessionIdForCurrentUser() {
         final String currentUserName = sessionService.getCurrentUserName();
-
         return currentUserName == null ? null : MyEncoder.decodeValue(redisTemplate.opsForValue().get(currentUserName));
+    }
+
+    @Cacheable(value = "currentUserNameCache", key = "#root.methodName")
+    public String getCurrentUserName() {
+        return sessionService.getCurrentUserName();
     }
 
     public void set(final String username, final String sessionId) {

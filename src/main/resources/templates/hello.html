@@ -16,6 +16,12 @@
     <div class="row">
         <div class="col-1 fixed-top ms-2 me-3">
             <br>
+            <div class="badge bg-light text-dark">
+                <h2 th:text="${currentUser}">
+                    currentUser
+                </h2>
+            </div>
+            <br>
             <br>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
@@ -82,15 +88,49 @@
                                     <div class="h5 mt-0">Ваше сообщение</div>
                                 </div>
                                 <div class="card-body">
-                                    <p class="card-text" th:text="${message.replyText}">replyText</p>
+                                    <th:block th:if="${message.replyText}">
+                                        <th:block th:each="str, stat : ${message.replyText.split('\r\n|\r|\n', -1)}">
+                                            <th:block class="p card-text" th:text="${str}"/>
+                                            <br th:if="${!stat.last}"/>
+                                        </th:block>
+                                    </th:block>
+                                </div>
+                            </div>
+                            <br>
+                        </div>
+                        <div th:if="${message.forward}">
+                            <div class="card">
+                                <div class="card-header">
+                                    <span class="badge bg-primary text-wrap"
+                                          style="width: 11rem;">Пересланное сообщение</span>
+                                    <div class="h5 mt-0" th:text="${message.replyFrom}">replyFrom</div>
+                                </div>
+                                <div class="card-body">
+                                    <th:block th:if="${message.replyText}">
+                                        <th:block th:each="str, stat : ${message.replyText.split('\r\n|\r|\n', -1)}">
+                                            <th:block class="p card-text" th:text="${str}"/>
+                                            <br th:if="${!stat.last}"/>
+                                        </th:block>
+                                    </th:block>
                                 </div>
                             </div>
                             <br>
                         </div>
                         <h5 class="card-title" th:text="${message.title}">title</h5>
-                        <p class="card-text" th:text="${message.text}">text</p>
+                        <th:block th:if="${message.text}">
+                            <th:block th:each="str, stat : ${message.text.split('\r\n|\r|\n', -1)}">
+                                <th:block class="p card-text" th:text="${str}"/>
+                                <br th:if="${!stat.last}"/>
+                            </th:block>
+                        </th:block>
+                        <br>
+
+                        <!--                        <p class="card-text" th:utext ="${message.text}">text</p>-->
                         <button class="btn btn-primary" th:formaction="@{/replyToMessage/{uid}(uid=${message.uid})}">
                             Ответить
+                        </button>
+                        <button class="btn btn-primary" th:formaction="@{/forwardToMessage/{uid}(uid=${message.uid})}">
+                            Переслать
                         </button>
                     </div>
 

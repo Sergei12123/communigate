@@ -71,7 +71,7 @@ public class RuleController {
 
     @PostMapping(value = "/createRule")
     public String createRule(@ModelAttribute("rule") RuleDTO dto) {
-        if (!dto.getOldName().equals(dto.getName()))
+        if (dto.isEdit() && !dto.getOldName().equals(dto.getName()))
             ruleService.renameRule(dto);
         ruleService.createRule(dto);
         return "redirect:/rules";

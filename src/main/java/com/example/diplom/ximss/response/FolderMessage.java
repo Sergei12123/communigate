@@ -1,6 +1,7 @@
 package com.example.diplom.ximss.response;
 
 import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.FolderReadMode;
 import com.example.diplom.ximss.response_request.Email;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -19,6 +20,9 @@ public class FolderMessage extends BaseXIMSS {
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
     private String folder = "INBOX";
+
+    @JacksonXmlProperty(isAttribute = true)
+    private FolderReadMode mode;
 
     @JacksonXmlProperty(isAttribute = true, localName = "UID")
     private Long uid;

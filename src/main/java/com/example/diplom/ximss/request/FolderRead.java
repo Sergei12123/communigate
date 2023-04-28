@@ -2,6 +2,7 @@ package com.example.diplom.ximss.request;
 
 
 import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.FolderReadMode;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Builder;
@@ -20,6 +21,9 @@ public class FolderRead extends BaseXIMSS {
 
     @JacksonXmlProperty(isAttribute = true, localName = "UID")
     private Long uid;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private FolderReadMode mode;
 
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)

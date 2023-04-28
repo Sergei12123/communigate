@@ -23,7 +23,13 @@ public class MessageController {
 
     @PostMapping("/sendMessage")
     private String sendMessage(@ModelAttribute("message") MessageDTO messageDTO, RedirectAttributes redirectAttributes) {
-        messageService.sendMessage(messageDTO, messageDTO.isReply());
+        if (messageDTO.isReply()) {
+            messageService.replyFromMessage(messageDTO);
+        } else if (messageDTO.isForward()) {
+            messageService.forwardMessage(messageDTO);
+        } else {
+            messageService.sendMessage(messageDTO);
+        }
         redirectAttributes.addAttribute("messageSent", true);
         redirectAttributes.addAttribute("userName", messageDTO.getUserLogin());
         return "redirect:/hello";
@@ -43,14 +49,33 @@ public class MessageController {
     }
 
     @PostMapping(value = "/replyToMessage/{uid}")
-    public String editRule(@PathVariable("uid") Long uid, RedirectAttributes redirectAttributes) {
+    public String replyToMessage(@PathVariable("uid") Long uid, RedirectAttributes redirectAttributes) {
         final MessageDTO tempDto = messageService.getMessageByUid(uid);
 
         redirectAttributes.addFlashAttribute("message",
             MessageDTO.builder()
+                .uid(uid)
                 .reply(true)
                 .replyText(tempDto.getText())
                 .userLogin(tempDto.getUserLogin())
+                .replyFrom(tempDto.getUserLogin())
+                .replyTitle(tempDto.getReplyTitle())
+                .title(tempDto.getTitle())
+                .build());
+        return "redirect:/new-message";
+    }
+
+    @PostMapping(value = "/forwardToMessage/{uid}")
+    public String forwardToMessage(@PathVariable("uid") Long uid, RedirectAttributes redirectAttributes) {
+        final MessageDTO tempDto = messageService.getMessageByUid(uid);
+
+        redirectAttributes.addFlashAttribute("message",
+            MessageDTO.builder()
+                .uid(uid)
+                .forward(true)
+                .replyText(tempDto.getText())
+                .replyTitle(tempDto.getReplyTitle())
+                .replyFrom(tempDto.getUserLogin())
                 .title(tempDto.getTitle())
                 .build());
         return "redirect:/new-message";

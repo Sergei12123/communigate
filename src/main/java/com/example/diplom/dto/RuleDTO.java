@@ -1,10 +1,10 @@
 package com.example.diplom.dto;
 
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RulePriority;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RuleType;
 import com.example.diplom.ximss.response_request.Action;
 import com.example.diplom.ximss.response_request.Condition;
 import com.example.diplom.ximss.response_request.Rule;
-import com.example.diplom.ximss.ximss_dictionary.RulePriority;
-import com.example.diplom.ximss.ximss_dictionary.RuleType;
 import lombok.*;
 
 import java.util.ArrayList;

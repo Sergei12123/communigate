@@ -1,65 +1,93 @@
 package com.example.diplom.service;
 
 import com.example.diplom.dto.MessageDTO;
-import com.example.diplom.manager.SessionService;
 import com.example.diplom.manager.XimssService;
+import com.example.diplom.ximss.parts_of_ximss.XimssAddress;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.FolderReadMode;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MimeMessageSubtype;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MimeMessageType;
 import com.example.diplom.ximss.request.*;
 import com.example.diplom.ximss.response.FolderMessage;
 import com.example.diplom.ximss.response.FolderReport;
 import com.example.diplom.ximss.response.Mime;
 import com.example.diplom.ximss.response_request.Email;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.mail.util.MimeMessageParser;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.example.diplom.dictionary.MessagePattern.CASUAL_MESSAGE_PATTERN;
-import static com.example.diplom.dictionary.MessagePattern.MESSAGE_REPLY_PATTERN;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class MessageService {
 
+    public static final String SUPER_CLIENT = "SuperClient v7.77";
+
     private final XimssService ximssService;
 
-    private final SessionService sessionService;
+    private final UserCache userCache;
+
 
     public List<MessageDTO> getInboxMessages() {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
         final List<FolderReport> folderReports = ximssService.sendRequestToGetList(FolderBrowse.builder().build(), FolderReport.class);
-        final List<FolderMessage> folderMessages = folderReports.stream()
+        final List<Map.Entry<Long, MimeMessageParser>> folderMessages = folderReports.stream()
             .map(FolderReport::getUid)
-            .map(uid -> ximssService.sendRequestToGetObject(FolderRead.builder().uid(uid).build(), FolderMessage.class))
+            .map(this::getMessageEntry)
             .toList();
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
         return folderMessages.stream()
-            .map(MessageDTO::new).toList();
+            .map(entry -> {
+                try {
+                    return new MessageDTO(entry.getKey(), entry.getValue());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).toList();
 
     }
 
 
-    public void sendMessage(final MessageDTO messageDTO, final boolean isReply) {
+    public void sendMessage(final MessageDTO messageDTO) {
         ximssService.sendRequestToGetNothing(MessageSubmit.builder().email(
             Email.builder()
-                .from(sessionService.getCurrentUserName())
+                .from(new XimssAddress(userCache.getCurrentUserName() + "@ivanov.ru"))
                 .subject(messageDTO.getTitle())
-                .to(messageDTO.getUserLogin())
-                .xMailer("SuperClient v7.77")
+                .to(new XimssAddress(messageDTO.getUserLogin() + "@ivanov.ru"))
+                .xMailer(SUPER_CLIENT)
                 .mime(
                     Mime.builder()
-                        .type("text")
-                        .subtype("plain")
-                        .messageText(isReply ?
-                            String.format(MESSAGE_REPLY_PATTERN.getValue(),
-                                messageDTO.getReplyText(),
-                                messageDTO.getText())
-                            : String.format(CASUAL_MESSAGE_PATTERN.getValue(),
-                            messageDTO.getText()).toString())
+                        .type(MimeMessageType.TEXT)
+                        .subtype(MimeMessageSubtype.PLAIN)
+                        .messageText(messageDTO.getText())
                         .build()
                 )
                 .build()
         ).build());
+    }
+
+    public void replyFromMessage(final MessageDTO messageDTO) {
+        ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
+        final Email email = ximssService.sendRequestToGetObject(FolderRead.builder().uid(messageDTO.getUid()).mode(FolderReadMode.REPLY_FROM).build(), FolderMessage.class).getEmail();
+        email.getMime().addText(messageDTO.getText());
+        ximssService.sendRequestToGetNothing(MessageSubmit.builder().email(email).build());
+        ximssService.sendRequestToGetNothing(FolderClose.builder().build());
+    }
+
+    public void forwardMessage(final MessageDTO messageDTO) {
+        ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
+        final Email email = ximssService.sendRequestToGetObject(FolderRead.builder().uid(messageDTO.getUid()).mode(FolderReadMode.FORWARD).build(), FolderMessage.class).getEmail();
+        email.getMime().addText(messageDTO.getText());
+        email.setTo(new XimssAddress(messageDTO.getUserLogin()));
+        ximssService.sendRequestToGetNothing(MessageSubmit.builder().email(email).build());
+        ximssService.sendRequestToGetNothing(FolderClose.builder().build());
     }
 
     public void deleteMessages(final Long[] selectedMessages) {
@@ -71,8 +99,20 @@ public class MessageService {
 
     public MessageDTO getMessageByUid(final Long uid) {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
-        final FolderMessage folderMessage = ximssService.sendRequestToGetObject(FolderRead.builder().uid(uid).build(), FolderMessage.class);
+        Map.Entry<Long, MimeMessageParser> messageById = getMessageEntry(uid);
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
-        return new MessageDTO(folderMessage);
+        try {
+            return new MessageDTO(messageById.getKey(), messageById.getValue());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Map.Entry<Long, MimeMessageParser> getMessageEntry(final Long uid) {
+        try {
+            return new AbstractMap.SimpleEntry<>(uid, new MimeMessageParser(new MimeMessage(null, new ByteArrayInputStream(ximssService.getMessageById(uid).getBytes(StandardCharsets.UTF_8)))));
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

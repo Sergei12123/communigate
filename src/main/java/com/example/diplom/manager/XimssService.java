@@ -36,7 +36,7 @@ public class XimssService {
 
     static private final String DEFAULT_SESSION_SYNC_REQUEST_URL = "http://localhost:8100/Session/%s/sync";
 
-    public static final String DUMB_LOGIN_URL = "http://localhost:8100/ximsslogin/?userName={userName}&password={password}";
+    public static final String GET_MESSAGE_URL = "http://localhost:8100/Session/%s/MIME/INBOX/%d-P.txt";
 
     public <T extends BaseXIMSS, P> P sendRequestToGetObject(final T requestXimssEntity, final Class<P> responseClass) {
         final List<P> list = sendRequestToGetList(requestXimssEntity, responseClass);
@@ -60,6 +60,13 @@ public class XimssService {
 
         return response == null ? null : getListFromXML(response, responseClass);
 
+    }
+
+    public String getMessageById(final Long uid) {
+        return restTemplate.getForObject(
+            String.format(GET_MESSAGE_URL, userCache.getSessionIdForCurrentUser(), uid),
+            String.class
+        );
     }
 
 

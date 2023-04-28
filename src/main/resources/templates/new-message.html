@@ -15,6 +15,12 @@
     <div class="row">
         <div class="col-1 fixed-top ms-2 me-3">
             <br>
+            <div class="badge bg-light text-dark">
+                <h2 th:text="${currentUser}">
+                    currentUser
+                </h2>
+            </div>
+            <br>
             <br>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
@@ -32,21 +38,36 @@
 
             <form th:action="@{/sendMessage}" th:method="post" th:object="${message}">
                 <input type="hidden" th:field="*{reply}">
+                <input type="hidden" th:field="*{forward}">
+                <input type="hidden" th:field="*{uid}">
                 <input type="hidden" th:field="*{replyText}">
+                <input type="hidden" th:field="*{replyFrom}">
+                <input type="hidden" th:field="*{replyTitle}">
+
 
                 <br>
                 <div class="row justify-content-center">
                     <div class="col-md-6 text-center mb-3 mt-3">
                         <div class="badge bg-success text-wrap text-center" style="width: 80%;">
-                            <h1 th:text="*{reply}?'Ответить на сообщение':'Написать письмо'">Ответить на сообщение</h1>
+                            <h1 th:text="*{reply}?'Ответить на сообщение':(*{forward}?'Переслать сообщение':'Написать письмо')">
+                                Ответить на сообщение</h1>
                         </div>
                     </div>
                 </div>
-                <div th:if="${message.reply}">
+                <div th:if="${message.reply || message.forward}">
                     <br>
-                    <div class="card">
-                        <div class="card-header ">
-                            <div class="h6 mt-0" th:text="${message.replyText}">replyText</div>
+                    <div class="card ms-5 me-5">
+                        <div class="card-header">
+                            <div class="h6 mt-0" th:text="${message.replyFrom}">replyFrom</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="h6 card-title" th:text="${message.replyTitle}">title</div>
+                            <th:block th:if="${message.replyText}">
+                                <th:block th:each="str, stat : ${message.replyText.split('\r\n|\r|\n', -1)}">
+                                    <th:block class="p card-text" th:text="${str}"/>
+                                    <br th:if="${!stat.last}"/>
+                                </th:block>
+                            </th:block>
                         </div>
                     </div>
                 </div>
@@ -54,12 +75,12 @@
                 <h5 class="form-label">Получатель</h5>
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" aria-describedby="basic-addon2" th:field="*{userLogin}"
-                           th:readonly="*{reply}"/>
+                           th:readonly="*{reply && replyFrom==userLogin}"/>
                     <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
                 </div>
 
                 <h5 class="form-label">Тема</h5>
-                <input type="text" class="form-control" th:field="*{title}" th:readonly="*{reply}"/>
+                <input type="text" class="form-control" th:field="*{title}" th:readonly="*{reply||forward}"/>
 
                 <br>
                 <h5 class="form-label">Текст сообщения</h5>

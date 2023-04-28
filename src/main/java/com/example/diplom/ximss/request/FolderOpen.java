@@ -2,7 +2,7 @@ package com.example.diplom.ximss.request;
 
 
 import com.example.diplom.ximss.BaseXIMSS;
-import com.example.diplom.ximss.ximss_dictionary.MessageField;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MessageField;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -12,7 +12,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-import static com.example.diplom.ximss.ximss_dictionary.MessageField.*;
+import static com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MessageField.*;
 
 @Getter
 @Setter

@@ -1,4 +1,4 @@
-package com.example.diplom.ximss.response;
+package com.example.diplom.ximss.parts_of_ximss;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
@@ -11,14 +11,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Date {
+public class XimssAddress {
 
     @JacksonXmlProperty(isAttribute = true)
-    private String localTime;
-
-    @JacksonXmlProperty(isAttribute = true)
-    private String timeShift;
+    private String realName;
 
     @JacksonXmlText
-    private String dateText;
+    private String text;
+
+    public XimssAddress(final String text) {
+        this.text = text;
+    }
+
 }

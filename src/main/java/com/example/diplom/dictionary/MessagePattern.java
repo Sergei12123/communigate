@@ -24,6 +24,8 @@ public enum MessagePattern {
     }
 
     public List<String> getStringValues(final String inputString) {
+        if (inputString == null || inputString.isEmpty())
+            return null;
         final List<String> values = new ArrayList<>();
         final Matcher matcher = pattern.matcher(inputString);
         if (matcher.find()) {
@@ -31,7 +33,7 @@ public enum MessagePattern {
                 values.add(matcher.group(i));
             }
         }
-        return values;
+        return values.size() > 0 ? values : null;
     }
 
 }
