@@ -10,19 +10,29 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @AllArgsConstructor
+@RequestMapping(value = "/message")
 public class MessageController {
 
     private final MessageService messageService;
 
-    @GetMapping("/new-message")
+    private static final String MESSAGE = "message";
+
+    private static final String NEW_MESSAGE = "new-message";
+
+    private static final String MESSAGES = "messages";
+
+    private static final String REDIRECT_MESSAGE_ALL = "redirect:/message/all";
+
+
+    @GetMapping("/new")
     private String newMessagePage(Model model) {
-        if (model.getAttribute("message") == null)
-            model.addAttribute("message", MessageDTO.builder().build());
-        return "new-message";
+        if (model.getAttribute(MESSAGE) == null)
+            model.addAttribute(MESSAGE, MessageDTO.builder().build());
+        return NEW_MESSAGE;
     }
 
-    @PostMapping("/sendMessage")
-    private String sendMessage(@ModelAttribute("message") MessageDTO messageDTO, RedirectAttributes redirectAttributes) {
+    @PostMapping("/create")
+    private String sendMessage(@ModelAttribute(MESSAGES) MessageDTO messageDTO, RedirectAttributes redirectAttributes) {
         if (messageDTO.isReply()) {
             messageService.replyFromMessage(messageDTO);
         } else if (messageDTO.isForward()) {
@@ -32,27 +42,27 @@ public class MessageController {
         }
         redirectAttributes.addAttribute("messageSent", true);
         redirectAttributes.addAttribute("userName", messageDTO.getUserLogin());
-        return "redirect:/hello";
+        return REDIRECT_MESSAGE_ALL;
     }
 
-    @PostMapping("/deleteMessages")
+    @PostMapping("/delete")
     private String deleteMessages(@RequestParam(value = "selectedMessages", required = false) Long[] selectedMessages) {
-        if (selectedMessages == null) return "redirect:/hello";
+        if (selectedMessages == null) return REDIRECT_MESSAGE_ALL;
         messageService.deleteMessages(selectedMessages);
-        return "redirect:/hello" + (selectedMessages.length == 1 ? "?messageDeleted" : "?messagesDeleted");
+        return REDIRECT_MESSAGE_ALL + (selectedMessages.length == 1 ? "?messageDeleted" : "?messagesDeleted");
     }
 
-    @RequestMapping("/hello")
-    private String helloPage(Model model) {
-        model.addAttribute("messages", messageService.getInboxMessages());
-        return "hello";
+    @RequestMapping("/all")
+    private String allMessages(Model model) {
+        model.addAttribute(MESSAGES, messageService.getInboxMessages());
+        return MESSAGES;
     }
 
-    @PostMapping(value = "/replyToMessage/{uid}")
-    public String replyToMessage(@PathVariable("uid") Long uid, RedirectAttributes redirectAttributes) {
+    @PostMapping(value = "/replyTo/{uid}")
+    public String replyToMessage(@PathVariable("uid") Long uid, Model model) {
         final MessageDTO tempDto = messageService.getMessageByUid(uid);
 
-        redirectAttributes.addFlashAttribute("message",
+        model.addAttribute(MESSAGE,
             MessageDTO.builder()
                 .uid(uid)
                 .reply(true)
@@ -62,14 +72,14 @@ public class MessageController {
                 .replyTitle(tempDto.getReplyTitle())
                 .title(tempDto.getTitle())
                 .build());
-        return "redirect:/new-message";
+        return NEW_MESSAGE;
     }
 
-    @PostMapping(value = "/forwardToMessage/{uid}")
-    public String forwardToMessage(@PathVariable("uid") Long uid, RedirectAttributes redirectAttributes) {
+    @PostMapping(value = "/forwardTo/{uid}")
+    public String forwardToMessage(@PathVariable("uid") Long uid, Model model) {
         final MessageDTO tempDto = messageService.getMessageByUid(uid);
 
-        redirectAttributes.addFlashAttribute("message",
+        model.addAttribute(MESSAGE,
             MessageDTO.builder()
                 .uid(uid)
                 .forward(true)
@@ -78,7 +88,7 @@ public class MessageController {
                 .replyFrom(tempDto.getUserLogin())
                 .title(tempDto.getTitle())
                 .build());
-        return "redirect:/new-message";
+        return NEW_MESSAGE;
     }
 
 }

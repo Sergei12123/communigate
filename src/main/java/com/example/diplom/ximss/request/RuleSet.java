@@ -1,9 +1,11 @@
 package com.example.diplom.ximss.request;
 
 import com.example.diplom.dto.RuleDTO;
+import com.example.diplom.dto.SignalDTO;
 import com.example.diplom.ximss.BaseXIMSS;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RulePriority;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RuleType;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.SignalStage;
 import com.example.diplom.ximss.response_request.Action;
 import com.example.diplom.ximss.response_request.Condition;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,10 +27,15 @@ public class RuleSet extends BaseXIMSS {
 
     @JacksonXmlProperty(isAttribute = true)
     private RuleType type;
+
     @JacksonXmlProperty(isAttribute = true)
     private String name;
+
     @JacksonXmlProperty(isAttribute = true)
     private RulePriority priority;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private SignalStage stage;
 
     @JacksonXmlProperty(localName = "condition")
     @JacksonXmlElementWrapper(useWrapping = false)
@@ -47,5 +54,16 @@ public class RuleSet extends BaseXIMSS {
         this.actionList = dto.getActionList();
         this.comment = dto.getComment();
     }
+
+    public RuleSet(final SignalDTO dto) {
+        this.type = RuleType.SIGNAL_IN;
+        this.name = dto.getName();
+        this.priority = dto.getPriority();
+        this.conditionList = dto.getConditionList();
+        this.actionList = dto.getActionList();
+        this.comment = dto.getComment();
+        this.stage = dto.getStage();
+    }
+
 }
 

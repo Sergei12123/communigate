@@ -15,9 +15,8 @@ import lombok.Setter;
 @JacksonXmlRootElement(localName = "ruleRemove")
 public class RuleRemove extends BaseXIMSS {
 
-    @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private RuleType type = RuleType.MAIL_IN;
+    private RuleType type;
 
     @JacksonXmlProperty(isAttribute = true)
     private String name;

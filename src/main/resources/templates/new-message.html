@@ -22,21 +22,17 @@
             </div>
             <br>
             <br>
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/hello">Сообщения</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/rules">Правила</a>
-                </li>
-            </ul>
+            <div class="d-grid mx-auto">
+                <a class="btn btn-primary mb-1" href="/message/all">Сообщения</a>
+                <a class="btn btn-outline-primary mb-1" href="/rule/all">Почтовые правила</a>
+                <a class="btn btn-outline-primary mb-1" href="/signal/all">Сигнальные правила</a>
+            </div>
             <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
                 <button type="submit" class="btn btn-warning">Выйти</button>
             </form>
         </div>
         <div class="col-11">
-
-            <form th:action="@{/sendMessage}" th:method="post" th:object="${message}">
+            <form th:action="@{/message/create}" th:method="post" th:object="${message}">
                 <input type="hidden" th:field="*{reply}">
                 <input type="hidden" th:field="*{forward}">
                 <input type="hidden" th:field="*{uid}">
@@ -90,14 +86,13 @@
                 <br>
                 <br>
                 <div class="btn-group">
-                    <a href="/hello" class="btn btn-danger me-2">Отмена</a>
+                    <a href="/message/all" class="btn btn-danger me-2">Отмена</a>
                     <button type="submit" class="btn btn-primary me-2">Отправить</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
         integrity="sha384-W8fXfP3gkOKtndU4JGtKDvXbO53Wy8SZCQHczT5FMiiqmQfUpWbYdTil/SxwZgAN"

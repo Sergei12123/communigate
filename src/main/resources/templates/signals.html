@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
-    <title>Почтовые правила</title>
+    <title>Сигнальные правила</title>
 </head>
 <body>
 
@@ -25,8 +25,8 @@
             <br>
             <div class="d-grid mx-auto">
                 <a class="btn btn-outline-primary mb-1" href="/message/all">Сообщения</a>
-                <a class="btn btn-primary mb-1" href="/rule/all">Почтовые правила</a>
-                <a class="btn btn-outline-primary mb-1" href="/signal/all">Сигнальные правила</a>
+                <a class="btn btn-outline-primary mb-1" href="/rule/all">Почтовые правила</a>
+                <a class="btn btn-primary mb-1" href="/signal/all">Сигнальные правила</a>
             </div>
             <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
                 <button type="submit" class="btn btn-warning">Выйти</button>
@@ -38,40 +38,43 @@
             <div class="row justify-content-center">
                 <div class="col-md-6 text-center mb-3 mt-3">
                     <div class="badge bg-success text-wrap text-center" style="width: 80%;">
-                        <h1>Список почтовых правил</h1>
+                        <h1>Список сигнальных правил</h1>
                     </div>
                 </div>
             </div>
 
-            <div th:if="${param.ruleDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
-                Правило удалено
+            <div th:if="${param.signalDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
+                Сигнальное правило удалено
             </div>
 
-            <div th:if="${param.rulesDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
-                Правила удалены
+            <div th:if="${param.signalsDeleted}" class="alert text-center alert-danger mb-3 mt-3" role="alert">
+                Сигнальные правила удалены
             </div>
             <br>
 
-            <form th:action="@{/rule/delete}"
+            <form th:action="@{/signal/delete}"
                   th:method="post">
 
                 <div class="btn-group">
-                    <a href="/rule/new" class="btn btn-primary me-2">Создать правило</a>
+                    <a href="/signal/new" class="btn btn-primary me-2">Создать правило</a>
                     <button type="submit" class="btn btn-danger me-2">Удалить</button>
                 </div>
-                <div th:each="rule, index: ${rules}" class="card mt-3 mb-3">
+                <div th:each="signal, index: ${signals}" class="card mt-3 mb-3">
                     <div class="form-check card-header ">
                         <input class="form-check-input p-3 gx-10 ms-0 me-2"
                                type="checkbox"
-                               name="selectedRules"
-                               th:value="${rule.name}"
-                               th:checked="${rule.selected}"
+                               name="selectedSignals"
+                               th:value="${signal.name}"
+                               th:checked="${signal.selected}"
                                id="flexCheckDefault"/>
-                        <div class="h2 mt-0" th:text="${rule.name}">ruleName</div>
+                        <div class="h2 mt-0" th:text="${signal.name}">ruleName</div>
                     </div>
                     <div class="card-body">
 
-                        <div class="h4">Приоритет: <span th:text="${rule.getPriority().getRuValue()}">5</span></div>
+                        <div class="h5">Приоритет: <span th:text="${signal.getPriority().getRuValue()}">5</span></div>
+
+                        <div class="h5">Когда: <span th:text="${signal.getStage().getRuValue()}">Никогда</span></div>
+
 
                         <table class="table table-hover">
                             <thead class="table">
@@ -82,7 +85,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="condition, index : ${rule.getConditionList()}">
+                            <tr th:each="condition, index : ${signal.getConditionList()}">
                                 <td th:text="${condition.getOpCode().getRuValue()}">1
                                 </td>
                                 <td th:text="${condition.getOperator().getRuValue()}">2
@@ -99,7 +102,7 @@
                             </tr>
                             </thead>
                             <tbody class="table">
-                            <tr th:each="action, index : ${rule.getActionList()}">
+                            <tr th:each="action, index : ${signal.getActionList()}">
                                 <td th:text="${action.getOpCode().getRuValue()}">1
                                 </td>
                                 <td colspan="2" th:text="${action.getValue()}">
@@ -110,7 +113,7 @@
 
                         </table>
                         <button type="submit" class="btn btn-primary"
-                                th:formaction="@{/rule/edit/{name}(name=${rule.name})}">Редактировать
+                                th:formaction="@{/signal/edit/{name}(name=${signal.name})}">Редактировать
                         </button>
                     </div>
                 </div>

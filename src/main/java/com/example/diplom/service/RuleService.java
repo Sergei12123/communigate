@@ -2,6 +2,7 @@ package com.example.diplom.service;
 
 import com.example.diplom.dto.RuleDTO;
 import com.example.diplom.manager.XimssService;
+import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RuleType;
 import com.example.diplom.ximss.request.*;
 import com.example.diplom.ximss.response_request.Rule;
 import lombok.RequiredArgsConstructor;
@@ -16,18 +17,18 @@ public class RuleService {
     private final XimssService ximssService;
 
     public List<RuleDTO> getAllRulesForCurrentUser() {
-        final List<Rule> ruleList = ximssService.sendRequestToGetList(RuleList.builder().build(), Rule.class);
+        final List<Rule> ruleList = ximssService.sendRequestToGetList(RuleList.builder().type(RuleType.MAIL_IN).build(), Rule.class);
         final List<Rule> correctRuleList = ruleList.stream()
-                .map(Rule::getName)
-                .map(name -> ximssService.sendRequestToGetObject(RuleRead.builder().name(name).build(), Rule.class))
-                .toList();
+            .map(Rule::getName)
+            .map(name -> ximssService.sendRequestToGetObject(RuleRead.builder().type(RuleType.MAIL_IN).name(name).build(), Rule.class))
+            .toList();
         return correctRuleList.stream()
                 .map(RuleDTO::new).toList();
 
     }
 
     public RuleDTO getRuleWitnName(final String ruleName) {
-        final Rule rule = ximssService.sendRequestToGetObject(RuleRead.builder().name(ruleName).build(), Rule.class);
+        final Rule rule = ximssService.sendRequestToGetObject(RuleRead.builder().type(RuleType.MAIL_IN).name(ruleName).build(), Rule.class);
         return rule != null ? new RuleDTO(rule) : null;
     }
 
@@ -36,10 +37,10 @@ public class RuleService {
     }
 
     public void renameRule(final RuleDTO ruleDTO) {
-        ximssService.sendRequestToGetNothing(RuleRename.builder().name(ruleDTO.getOldName()).newName(ruleDTO.getName()).build());
+        ximssService.sendRequestToGetNothing(RuleRename.builder().type(RuleType.MAIL_IN).name(ruleDTO.getOldName()).newName(ruleDTO.getName()).build());
     }
 
     public void deleteRules(List<String> selectedRules) {
-        selectedRules.forEach(ruleName -> ximssService.sendRequestToGetNothing(RuleRemove.builder().name(ruleName).build()));
+        selectedRules.forEach(ruleName -> ximssService.sendRequestToGetNothing(RuleRemove.builder().type(RuleType.MAIL_IN).name(ruleName).build()));
     }
 }

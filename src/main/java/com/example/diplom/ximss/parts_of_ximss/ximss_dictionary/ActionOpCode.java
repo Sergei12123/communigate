@@ -3,6 +3,8 @@ package com.example.diplom.ximss.parts_of_ximss.ximss_dictionary;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import java.util.List;
+
 public enum ActionOpCode {
 
     @JsonProperty("Store in")
@@ -20,7 +22,7 @@ public enum ActionOpCode {
     @JsonProperty("Stop Processing")
     STOP_PROCESSING("Прекратить Обработку"),
     @JsonProperty("Remember 'From' in")
-    REMEMBER_FROM_IN("Запомнить 'От кого'в"),
+    REMEMBER_FROM_IN("Запомнить 'От кого' в"),
     @JsonProperty("Accept Request")
     ACCEPT_REQUEST("Принять Приглашение"),
     @JsonProperty("Accept Reply")
@@ -41,14 +43,23 @@ public enum ActionOpCode {
     REPLY_TO_ALL_WITH("Ответить Всем"),
     @JsonProperty("React with")
     REACT_WITH("Отреагировать с"),
-    @JsonProperty("Send IM")
+    @JsonProperty("SendIM")
     SEND_IM("Послать IM"),
-    @JsonProperty("Send Push")
+    @JsonProperty("SendPush")
     SEND_PUSH("Послать Push"),
-    @JsonProperty("Execute URL")
+    @JsonProperty("SendURL")
     EXECUTE_URL("Обратиться по URL"),
     @JsonProperty("Execute")
-    EXECUTE("Выполнить");
+    EXECUTE("Выполнить"),
+
+    @JsonProperty("Fork to")
+    FORK_TO("Подключить"),
+
+    @JsonProperty("Discard Rules")
+    DISCARD_RULES("Остановить Правила"),
+
+    @JsonProperty("Write To Log")
+    WRITE_TO_LOG("Записать в Журнал");
 
     @Getter
     private final String ruValue;
@@ -56,4 +67,42 @@ public enum ActionOpCode {
     ActionOpCode(String value) {
         this.ruValue = value;
     }
+
+    public static final List<ActionOpCode> MAIL_ACTION_OP_CODES = List.of(
+        STORE_IN,
+        MARK,
+        ADD_HEADER,
+        TAG_SUBJECT,
+        REJECT_WITH,
+        DISCARD,
+        STOP_PROCESSING,
+        REMEMBER_FROM_IN,
+        ACCEPT_REQUEST,
+        ACCEPT_REPLY,
+        STORE_ENCRYPTED_IN,
+        COPY_ATTACHMENTS_INTO,
+        REDIRECT_TO,
+        FORWARD_TO,
+        MIRROR_TO,
+        REPLY_WITH,
+        REPLY_TO_ALL_WITH,
+        REACT_WITH,
+        SEND_IM,
+        SEND_PUSH,
+        EXECUTE_URL,
+        EXECUTE
+    );
+
+    public static final List<ActionOpCode> SIGNAL_ACTION_OP_CODES = List.of(
+        REJECT_WITH,
+        REDIRECT_TO,
+        FORK_TO,
+        STOP_PROCESSING,
+        DISCARD_RULES,
+        REMEMBER_FROM_IN,
+        SEND_IM,
+        SEND_PUSH,
+        EXECUTE_URL,
+        WRITE_TO_LOG
+    );
 }

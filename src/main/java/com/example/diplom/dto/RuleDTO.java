@@ -6,35 +6,36 @@ import com.example.diplom.ximss.response_request.Action;
 import com.example.diplom.ximss.response_request.Condition;
 import com.example.diplom.ximss.response_request.Rule;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class RuleDTO {
 
-    private RuleType type;
+    protected RuleType type;
 
-    private String oldName;
+    protected String oldName;
 
-    private String name;
-
-    @Builder.Default
-    private RulePriority priority = RulePriority.FIVE;
+    protected String name;
 
     @Builder.Default
-    private List<Condition> conditionList = new ArrayList<>();
+    protected RulePriority priority = RulePriority.FIVE;
 
     @Builder.Default
-    private List<Action> actionList = new ArrayList<>();
+    protected List<Condition> conditionList = new ArrayList<>();
 
-    private String comment;
+    @Builder.Default
+    protected List<Action> actionList = new ArrayList<>();
 
-    private boolean selected;
+    protected String comment;
+
+    protected boolean selected;
 
     private boolean removeConditionAllow;
 

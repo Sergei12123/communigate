@@ -8,92 +8,99 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
 @Controller
 @AllArgsConstructor
+@RequestMapping(value = "/rule")
 public class RuleController {
 
     private final RuleService ruleService;
 
-    @GetMapping("/rules")
+    private static final String RULE = "rule";
+
+    private static final String NEW_RULE = "new-rule";
+
+    private static final String RULES = "rules";
+
+    private static final String REDIRECT_RULE_ALL = "redirect:/rule/all";
+
+    @GetMapping("/all")
     private String rulesPage(Model model) {
-        model.addAttribute("rules", ruleService.getAllRulesForCurrentUser());
-        return "rules";
+        model.addAttribute(RULES, ruleService.getAllRulesForCurrentUser());
+        return RULES;
     }
 
-    @GetMapping("/new-rule")
-    private String newMessagePage(Model model) {
-        if (model.getAttribute("rule") == null) {
+    @GetMapping("/new")
+    private String newRule(Model model) {
+        if (model.getAttribute(RULE) == null) {
             final RuleDTO dto = RuleDTO.builder().build();
             dto.getConditionList().add(Condition.builder().build());
             dto.setRemoveConditionAllow(true);
             dto.setRemoveActionAllow(true);
             dto.getActionList().add(Action.builder().build());
-            model.addAttribute("rule", dto);
+            model.addAttribute(RULE, dto);
         }
-        return "new-rule";
+        return NEW_RULE;
     }
 
     @PostMapping(value = "/addCondition")
-    public String addCondition(@ModelAttribute("rule") RuleDTO dto) {
+    public String addCondition(@ModelAttribute(RULE) RuleDTO dto) {
         dto.setRemoveConditionAllow(true);
         dto.getConditionList().add(Condition.builder().build());
-        return "new-rule";
+        return NEW_RULE;
     }
 
     @PostMapping(value = "/removeCondition")
-    public String removeCondition(@ModelAttribute("rule") RuleDTO dto) {
+    public String removeCondition(@ModelAttribute(RULE) RuleDTO dto) {
         dto.getConditionList().remove(dto.getConditionList().size() - 1);
         if (dto.getConditionList().size() == 0) {
             dto.setRemoveConditionAllow(false);
         }
-        return "new-rule";
+        return NEW_RULE;
     }
 
     @PostMapping(value = "/addAction")
-    public String addAction(@ModelAttribute("rule") RuleDTO dto) {
+    public String addAction(@ModelAttribute(RULE) RuleDTO dto) {
         dto.setRemoveActionAllow(true);
         dto.getActionList().add(Action.builder().build());
-        return "new-rule";
+        return NEW_RULE;
     }
 
     @PostMapping(value = "/removeAction")
-    public String removeAction(@ModelAttribute("rule") RuleDTO dto) {
+    public String removeAction(@ModelAttribute(RULE) RuleDTO dto) {
         dto.getActionList().remove(dto.getActionList().size() - 1);
         if (dto.getActionList().size() == 0) {
             dto.setRemoveActionAllow(false);
         }
-        return "new-rule";
+        return NEW_RULE;
     }
 
-    @PostMapping(value = "/createRule")
-    public String createRule(@ModelAttribute("rule") RuleDTO dto) {
+    @PostMapping(value = "/create")
+    public String createRule(@ModelAttribute(RULE) RuleDTO dto) {
         if (dto.isEdit() && !dto.getOldName().equals(dto.getName()))
             ruleService.renameRule(dto);
         ruleService.createRule(dto);
-        return "redirect:/rules";
+        return REDIRECT_RULE_ALL;
     }
 
-    @PostMapping(value = "/editRule/{name}")
-    public String editRule(@PathVariable("name") String ruleName, RedirectAttributes redirectAttributes) {
+    @PostMapping(value = "/edit/{name}")
+    public String editRule(@PathVariable("name") String ruleName, Model model) {
         final RuleDTO dto = ruleService.getRuleWitnName(ruleName);
         dto.setEdit(true);
         dto.setRemoveConditionAllow(dto.getConditionList().size() > 0);
         dto.setRemoveActionAllow(dto.getActionList().size() > 0);
-
-        redirectAttributes.addFlashAttribute("rule", dto);
-        return "redirect:/new-rule";
+        model.addAttribute(RULE, dto);
+        return NEW_RULE;
     }
 
-    @PostMapping("/deleteRules")
-    private String deleteMessages(@RequestParam(value = "selectedRules", required = false) List<String> selectedRules, Model model) {
+    @PostMapping("/delete")
+    private String deleteRules(@RequestParam(value = "selectedRules", required = false) List<String> selectedRules) {
         if (selectedRules == null)
-            return "redirect:/rules";
+            return REDIRECT_RULE_ALL;
         ruleService.deleteRules(selectedRules);
-        return "redirect:/rules" + (selectedRules.size() == 1 ? "?ruleDeleted" : "?rulesDeleted");
+        return REDIRECT_RULE_ALL + (selectedRules.size() == 1 ? "?ruleDeleted" : "?rulesDeleted");
     }
 
 

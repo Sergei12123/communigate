@@ -3,6 +3,8 @@ package com.example.diplom.ximss.parts_of_ximss.ximss_dictionary;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import java.util.List;
+
 public enum ConditionOpCode {
 
     @JsonProperty("From")
@@ -56,7 +58,23 @@ public enum ConditionOpCode {
     @JsonProperty("Submit Address")
     SUBMIT_ADDRESS("От сетевого адреса"),
     @JsonProperty("Calendar Method")
-    CALENDAR_METHOD("Календарный Запрос");
+    CALENDAR_METHOD("Календарный Запрос"),
+    @JsonProperty("Method")
+    OPERATION("Операция"),
+    @JsonProperty("RequestURI")
+    TARGET_ADDRESS("Адрес Запроса"),
+    @JsonProperty("CallType")
+    CALL_TYPE("Тип Вызова"),
+    @JsonProperty("RegClients")
+    ACTIVE_DEVICES("Активные Устройства"),
+    @JsonProperty("ReqField")
+    REQUEST_FIELD("Поле Запроса"),
+    @JsonProperty("AgentType")
+    DEVICE_TYPE("Тип Устройства"),
+    @JsonProperty("Presence")
+    PRESENCE("Состояние"),
+    @JsonProperty("Authenticated")
+    AUTHENTICATED("Аутентификация");
 
     @Getter
     private final String ruValue;
@@ -64,4 +82,54 @@ public enum ConditionOpCode {
     ConditionOpCode(String value) {
         this.ruValue = value;
     }
+
+    public static final List<ConditionOpCode> MAIL_RULE_OP_CODES = List.of(
+        FROM,
+        SENDER,
+        RETURN_PATH,
+        TO,
+        CC,
+        ANY_TO_OR_CC,
+        EACH_TO_OR_CC,
+        REPLY_TO,
+        FROM_NAME,
+        SUBJECT,
+        MESSAGE_ID,
+        MESSAGE_SIZE,
+        TIME_OF_DAY,
+        CURRENT_DATE,
+        CURRENT_DAY,
+        PREFERENCE,
+        FREE_BUSY,
+        HUMAN_GENERATED,
+        HEADER_FIELD,
+        ANY_RECIPIENT,
+        EACH_RECIPIENT,
+        EXISTING_MAILBOX,
+        SECURITY,
+        SOURCE,
+        SUBMIT_ADDRESS,
+        CALENDAR_METHOD
+    );
+
+    public static final List<ConditionOpCode> SIGNAL_RULE_OP_CODES = List.of(
+        OPERATION,
+        TARGET_ADDRESS,
+        CALL_TYPE,
+        ACTIVE_DEVICES,
+        REQUEST_FIELD,
+        DEVICE_TYPE,
+        FROM,
+        TO,
+        FROM_NAME,
+        AUTHENTICATED,
+        SUBMIT_ADDRESS,
+        PRESENCE,
+        TIME_OF_DAY,
+        CURRENT_DATE,
+        CURRENT_DAY,
+        PREFERENCE,
+        FREE_BUSY
+    );
+
 }

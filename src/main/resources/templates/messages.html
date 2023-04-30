@@ -23,14 +23,11 @@
             </div>
             <br>
             <br>
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="/hello">Сообщения</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/rules">Правила</a>
-                </li>
-            </ul>
+            <div class="d-grid mx-auto">
+                <a class="btn btn-primary mb-1" href="/message/all">Сообщения</a>
+                <a class="btn btn-outline-primary mb-1" href="/rule/all">Почтовые правила</a>
+                <a class="btn btn-outline-primary mb-1" href="/signal/all">Сигнальные правила</a>
+            </div>
             <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
                 <button type="submit" class="btn btn-warning">Выйти</button>
             </form>
@@ -63,9 +60,9 @@
 
             <br>
 
-            <form th:action="@{/deleteMessages}" th:method="post">
+            <form th:action="@{/message/delete}" th:method="post">
                 <div class="btn-group">
-                    <a href="/new-message" class="btn btn-primary me-2">Написать письмо</a>
+                    <a href="/message/new" class="btn btn-primary me-2">Написать письмо</a>
                     <button type="submit" class="btn btn-danger me-2">Удалить</button>
                 </div>
 
@@ -125,11 +122,10 @@
                         </th:block>
                         <br>
 
-                        <!--                        <p class="card-text" th:utext ="${message.text}">text</p>-->
-                        <button class="btn btn-primary" th:formaction="@{/replyToMessage/{uid}(uid=${message.uid})}">
+                        <button class="btn btn-primary" th:formaction="@{/message/replyTo/{uid}(uid=${message.uid})}">
                             Ответить
                         </button>
-                        <button class="btn btn-primary" th:formaction="@{/forwardToMessage/{uid}(uid=${message.uid})}">
+                        <button class="btn btn-primary" th:formaction="@{/message/forwardTo/{uid}(uid=${message.uid})}">
                             Переслать
                         </button>
                     </div>

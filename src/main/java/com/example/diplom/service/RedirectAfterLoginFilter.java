@@ -29,11 +29,11 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
                 && (request.getRequestURI().equals(request.getContextPath() + "/login")
                 || request.getRequestURI().equals(request.getContextPath() + "/"))) {
             ximssService.sendRequestToGetNothing(
-                    SetSessionOption.builder()
-                            .name("idleTimeout")
-                            .value(String.valueOf(Integer.parseInt(sessionTimeout.replaceAll("\\D+", "")) * 60))
-                            .build());
-            response.sendRedirect(request.getContextPath() + "/hello?login");
+                SetSessionOption.builder()
+                    .name("idleTimeout")
+                    .value(String.valueOf(Integer.parseInt(sessionTimeout.replaceAll("\\D+", "")) * 60))
+                    .build());
+            response.sendRedirect(request.getContextPath() + "/message/all?login");
         } else {
             filterChain.doFilter(request, response);
         }
