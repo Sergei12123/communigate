@@ -43,11 +43,18 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .httpBasic()
+            .and()
+            .csrf().disable()
             .sessionManagement()
             .invalidSessionUrl(LOGIN_PAGE)
             .and()
+            .requiresChannel()
+            .requestMatchers(LOGIN_PAGE).requiresSecure()
+            .anyRequest().requiresInsecure()
+            .and()
             .authorizeHttpRequests((requests) -> requests
-                .requestMatchers(LOGIN_PAGE, "/").permitAll()
+                .requestMatchers(LOGIN_PAGE, "/", "/chat/addMessageToChat", "/filter/chat/addMessageToChat").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(
@@ -100,6 +107,5 @@ public class WebSecurityConfig {
             }
         };
     }
-
 
 }

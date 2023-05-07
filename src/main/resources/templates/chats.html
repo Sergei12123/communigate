@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        [data-letters]:before {
+            content: attr(data-letters);
+            display: inline-block;
+            font-size: 1em;
+            width: 2.5em;
+            height: 2.5em;
+            line-height: 2.5em;
+            text-align: center;
+            border-radius: 50%;
+            background: plum;
+            vertical-align: middle;
+            margin-right: 1em;
+            color: white;
+        }
+
+        .circle {
+            width: 50px;
+            height: 50px;
+            -webkit-border-radius: 25px;
+            -moz-border-radius: 25px;
+            line-height: 50px;
+            border-radius: 25px;
+            text-align: center;
+        }
+
+        .small-circle {
+            width: 40px;
+            height: 40px;
+            -webkit-border-radius: 25px;
+            -moz-border-radius: 25px;
+            border-radius: 25px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 15px;
+        }
+    </style>
+
+    <title>Чаты</title>
+</head>
+<body>
+
+<section>
+    <div class="container-fluid" style="width: 100vw">
+        <div class="row">
+            <div class="col-1" style="width: 20vw; max-width: 200px;">
+                <br>
+                <div class="badge bg-light text-dark align-middle text-center" style="width: 16vw; max-width: 175px;">
+                    <p th:text="${currentUser}"
+                       style="font-size: calc(1vw + 5px);display: table-cell; vertical-align: middle;">
+                        currentUser
+                    </p>
+                </div>
+                <br>
+                <br>
+                <div class="d-grid mx-auto">
+                    <a class="btn btn-outline-primary mb-1"
+                       style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                       href="/message/all">Сообщения</a>
+                    <a class="btn btn-primary mb-1"
+                       style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                       href="/chat/all">Мгновенные сообщения</a>
+                    <a class="btn btn-outline-primary mb-1"
+                       style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                       href="/rule/all">Почтовые правила</a>
+                    <a class="btn btn-outline-primary mb-1"
+                       style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                       href="/signal/all">Сигнальные правила</a>
+                </div>
+                <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
+                    <button type="submit" class="btn btn-warning">Выйти</button>
+                </form>
+            </div>
+
+            <div class="col-11" style="width: 80vw;">
+                <br>
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center mb-3 mt-3">
+                        <div class="badge bg-success text-wrap text-center" style="width: 80%;">
+                            <h1>Мгновенные сообщения</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/chat/delete}"
+                      th:method="post">
+
+                    <div class="container-fluid py-5">
+
+                        <div class="row position-relative">
+                            <div class="col-4">
+                                <div class="btn-group mb-1">
+                                    <button type="submit" class="btn btn-danger me-2">Удалить</button>
+                                    <a href="/chat/new" class="btn btn-primary me-2"
+                                       th:if="${param.new==null}">Новый чат</a>
+
+                                </div>
+                                <h5 class="form-label" th:if="${param.new}">Получатель</h5>
+                                <div th:if="${param.new}" class="input-group mb-3">
+                                    <input type="text" class="form-control" aria-describedby="basic-addon2"
+                                           th:name="userLogin"/>
+                                    <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
+                                    <button type="submit" th:formaction="@{/chat/create}"
+                                            class="btn btn-primary me-2 ms-2"
+                                            th:if="${param.new!=null}">Создать
+                                    </button>
+                                </div>
+                                <div th:if="${!chats.isEmpty()}" th:fragment="listOfChats" class="card"
+                                     id="listOfChats">
+                                    <div class="card-body">
+                                        <ul class="list-unstyled mb-0">
+                                            <li class="p-1 border-bottom"
+                                                th:style="${chat.isCurrent()}?'background-color: #eee;':''"
+                                                th:each="chat, index: ${chats}">
+                                                <a th:href="@{/chat/select/${userLogin}(userLogin=${chat.getUserLogin()})}"
+                                                   class="justify-content-between">
+                                                    <div class="row">
+                                                        <div class="col-2 ps-2" style="width: 35%; max-width: 70px">
+                                                            <div class="custom-control custom-checkbox image-checkbox">
+                                                                <label class="custom-control-label">
+                                                                    <input type="checkbox"
+                                                                           class="custom-control-input position-absolute top-10 start-10"
+                                                                           name="selectedChats"
+                                                                           th:value="${chat.userLogin}"
+                                                                           th:checked="${chat.selected}"
+                                                                           id="ck1a">
+                                                                    <div class="circle text-black text-center"
+                                                                         style="background-color: silver;
+                                                                         font-size: 25px;"
+                                                                         th:text="${chat.getShortUserLogin()}">
+                                                                        NT
+                                                                    </div>
+
+                                                                </label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-10" style="width: 65%;">
+                                                            <p class="fw-bold mb-0" th:text="${chat.getUserLogin()}">
+                                                                John Doedfgdfg</p>
+                                                            <p class="small text-muted" style="width: 10vw"
+                                                               th:text="${chat.getLastMessage().getShortMessageText()}">
+                                                                Hello, Are you there</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-7" th:if="${!chats.isEmpty()}">
+
+                                <div class="overflow-auto container-fluid" id="chat-messages"
+                                     th:attr="data-sessionId=${sessionId}"
+                                     th:object="${chat}"
+                                     th:fragment="chat"
+                                     style="max-height: 55vh; height: 55vh; min-height: 55vh; width: 45vw;">
+                                    <div th:each="chatMessage, index: ${chat.getChatMessages()}">
+                                        <div th:fragment="chatMessage"
+                                             class="pt-2 ps-2 row">
+                                            <div th:if="${chatMessage.getUserLogin()==currentUser}" class="col"></div>
+                                            <div th:if="${chatMessage.getUserLogin()!=currentUser}"
+                                                 class="small-circle text-black col-1" style="background-color: silver;"
+                                                 th:text="${chat.getShortUserLogin()}">NR
+                                            </div>
+                                            <div
+                                                    th:class="${chatMessage.getUserLogin()==currentUser?'col-auto pt-0 pb-0 me-1 text-white rounded-3 bg-primary text-end':'col-auto pt-0 pb-0 ms-1 rounded-3 text-start'}"
+                                                    th:style="${chatMessage.getUserLogin()==currentUser?'max-width:30vw':'max-width:30vw;background-color: #f5f6f7;'}"
+                                                    th:if="${chatMessage.messageText}">
+                                                <div
+                                                        th:each="str, stat : ${chatMessage.getMessageText().split('\r\n|\r|\n', -1)}">
+                                                    <div style="word-wrap:break-word;" th:text="${str}">hi</div>
+                                                </div>
+                                            </div>
+                                            <div th:if="${chatMessage.getUserLogin()==currentUser}"
+                                                 class="small-circle text-black col-1"
+                                                 style="background-color: cadetblue;"
+                                                 th:text="${chat.getShortCurrentUserLogin()}">NT
+                                            </div>
+                                            <div th:if="${chatMessage.getUserLogin()!=currentUser}" class="col"></div>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <script>
+                                    var intervalId;
+
+                                    function loadChatMessages() {
+                                        var sessionId = document.getElementById("chat-messages").getAttribute("data-sessionId");
+                                        var url = 'http://localhost:8100/Session/' + sessionId + '/get?maxWait=20';
+
+                                        $.get(url, function (result) {
+                                            var serializer = new XMLSerializer();
+                                            var responseString = serializer.serializeToString(result);
+                                            if (responseString.indexOf("<composing/>") === -1 && responseString !== "<XIMSS/>" && responseString.indexOf("<paused/>") === -1) {
+
+                                                $.ajax({
+                                                    url: '/chat/getListOfChats',
+                                                    type: 'POST',
+                                                    data: responseString,
+                                                    contentType: 'application/xml',
+                                                    async: true,
+                                                }).done(function (response) {
+                                                    if (response.trim() !== "") {
+                                                        $("#listOfChats").html(response);
+                                                    }
+                                                });
+                                                $.ajax({
+                                                    url: '/chat/getChatMessage',
+                                                    type: 'POST',
+                                                    data: responseString,
+                                                    contentType: 'application/xml',
+                                                    async: true,
+                                                }).done(function (response) {
+                                                    if (response.trim() !== "") {
+                                                        $("#chat-messages").append(response);
+                                                        $("#chat-messages").scrollTop($("#chat-messages")[0].scrollHeight);
+                                                    }
+                                                });
+                                            }
+                                            loadChatMessages();
+                                        });
+
+                                    }
+
+                                    $(document).ready(function () {
+                                        var chatMessages = document.getElementById('chat-messages');
+                                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                                        intervalId = setTimeout(loadChatMessages, 0);
+                                    });
+
+                                    $(window).on('beforeunload', function () {
+                                        clearTimeout(intervalId);
+                                    });
+
+                                </script>
+
+                                <div>
+                                    <div class="form-outline mt-5">
+                                        <textarea th:field="${chat_message.messageText}" th:name="messageText"
+                                                  style="width: 45vw"
+                                                  class="form-control" placeholder="Напишите что-нибудь"
+                                                  rows="4"></textarea>
+                                    </div>
+                                    <input type="hidden" th:field="${chat.userLogin}" th:name="userLogin">
+                                    <br>
+                                    <button type="submit" th:formaction="@{/chat/send}"
+                                            class="btn btn-info btn-rounded float-end">Send
+                                    </button>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+        integrity="sha384-W8fXfP3gkOKtndU4JGtKDvXbO53Wy8SZCQHczT5FMiiqmQfUpWbYdTil/SxwZgAN"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js"
+        integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/"
+        crossorigin="anonymous"></script>
+</body>
+</html>

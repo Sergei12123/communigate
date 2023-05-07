@@ -12,28 +12,38 @@
 <body>
 
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col-1 fixed-top ms-2 me-3">
+        <div class="col-1" style="width: 20vw; max-width: 200px;">
             <br>
-            <div class="badge bg-light text-dark">
-                <h2 th:text="${currentUser}">
+            <div class="badge bg-light text-dark align-middle text-center" style="width: 16vw; max-width: 175px;">
+                <p th:text="${currentUser}"
+                   style="font-size: calc(1vw + 5px);display: table-cell; vertical-align: middle;">
                     currentUser
-                </h2>
+                </p>
             </div>
             <br>
             <br>
             <div class="d-grid mx-auto">
-                <a class="btn btn-outline-primary mb-1" href="/message/all">Сообщения</a>
-                <a class="btn btn-outline-primary mb-1" href="/rule/all">Почтовые правила</a>
-                <a class="btn btn-primary mb-1" href="/signal/all">Сигнальные правила</a>
+                <a class="btn btn-outline-primary mb-1"
+                   style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                   href="/message/all">Сообщения</a>
+                <a class="btn btn-outline-primary mb-1"
+                   style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                   href="/chat/all">Мгновенные сообщения</a>
+                <a class="btn btn-outline-primary mb-1"
+                   style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                   href="/rule/all">Почтовые правила</a>
+                <a class="btn btn-primary mb-1"
+                   style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                   href="/signal/all">Сигнальные правила</a>
             </div>
             <form th:action="@{/makeLogout}" method="post" class="fixed-bottom ms-4 me-3 mb-5">
                 <button type="submit" class="btn btn-warning">Выйти</button>
             </form>
         </div>
 
-        <div class="col-11">
+        <div class="col-11" style="width: 80vw;">
             <br>
             <div class="row justify-content-center">
                 <div class="col-md-6 text-center mb-3 mt-3">

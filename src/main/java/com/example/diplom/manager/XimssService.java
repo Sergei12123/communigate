@@ -4,20 +4,27 @@ import com.example.diplom.annotation.PreLoginRequest;
 import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.BaseXIMSS;
 import com.example.diplom.ximss.request.Login;
+import com.example.diplom.ximss.response.ReadIm;
 import com.example.diplom.ximss.response.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -37,6 +44,9 @@ public class XimssService {
     static private final String DEFAULT_SESSION_SYNC_REQUEST_URL = "http://localhost:8100/Session/%s/sync";
 
     public static final String GET_MESSAGE_URL = "http://localhost:8100/Session/%s/MIME/INBOX/%d-P.txt";
+
+    public static final String GET_REQUEST_URL = "http://localhost:8100/Session/%s/get?maxWait=%d";
+
 
     public <T extends BaseXIMSS, P> P sendRequestToGetObject(final T requestXimssEntity, final Class<P> responseClass) {
         final List<P> list = sendRequestToGetList(requestXimssEntity, responseClass);
@@ -112,6 +122,16 @@ public class XimssService {
                 if (jsonNode != null) {
                     try {
                         resultList.add(0, xmlMapper.treeToValue(jsonNode, returnType));
+                        if (returnType == ReadIm.class) {
+                            if (Objects.equals(jsonNode.get("composing"), NullNode.instance))
+                                ((ReadIm) resultList.get(0)).setComposing("");
+                            if (Objects.equals(jsonNode.get("paused"), NullNode.instance))
+                                ((ReadIm) resultList.get(0)).setPaused("");
+                            if (Objects.equals(jsonNode.get("gone"), NullNode.instance))
+                                ((ReadIm) resultList.get(0)).setGone("");
+                            if (Objects.equals(jsonNode.get("body"), NullNode.instance))
+                                ((ReadIm) resultList.get(0)).setBody("");
+                        }
                     } catch (Exception e) {
                         try {
                             resultList.add(0, xmlMapper.readValue(unwrapXimss(xmlString), returnType));
@@ -150,6 +170,44 @@ public class XimssService {
             throw new RuntimeException(e);
         }
     }
+
+    public void sendRequests() {
+        String url = String.format(GET_REQUEST_URL, userCache.getSessionIdForCurrentUser(), 20);
+        Runnable requestSender = () -> {
+
+            while (true) {
+                CompletableFuture<ResponseEntity<String>> future = CompletableFuture.supplyAsync(() ->
+                    restTemplate.getForEntity(url, String.class));
+
+                try {
+                    ResponseEntity<String> response = future.get();
+                    String responseBody = response.getBody();
+                    if (!Objects.equals(responseBody, "<XIMSS/>\r\n")) {
+                        System.out.println(responseBody);
+                        final ReadIm readIm = getObjectFromXML(responseBody, ReadIm.class);
+                        if (readIm.getMessageText() != null) {
+                            HttpHeaders headers = new HttpHeaders();
+                            headers.add("Cookie", "JSESSIONID=" + RequestContextHolder.currentRequestAttributes().getSessionId());
+
+                            HttpEntity<String> entity = new HttpEntity<>(headers);
+                            ResponseEntity<String> response1 = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+//                            restTemplate1.getForObject(
+//                                "http://localhost:8080/chat/getChatMessages?userLogin=" + readIm.getPeer().replace("@ivanov.ru", "") + "&message=" + readIm.getMessageText(),
+//                                String.class
+//                            );
+                        }
+                    }
+                    // process the response
+                } catch (InterruptedException | ExecutionException e) {
+                    // handle exception
+                }
+            }
+        };
+        Executors.newSingleThreadExecutor().submit(requestSender);
+
+    }
+
 
     private String getXML(final List<Object> objects) {
         AtomicReference<String> xml = new AtomicReference<>("");

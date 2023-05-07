@@ -5,6 +5,8 @@ import lombok.Getter;
 
 public enum SignalStage {
 
+    @JsonProperty("0")
+    IMMEDIATELY("Немедленно"),
     @JsonProperty("1")
     SEC_1("1 сек"),
     @JsonProperty("2")
