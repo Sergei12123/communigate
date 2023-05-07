@@ -54,7 +54,7 @@ public class WebSecurityConfig {
             .anyRequest().requiresInsecure()
             .and()
             .authorizeHttpRequests((requests) -> requests
-                .requestMatchers(LOGIN_PAGE, "/", "/chat/addMessageToChat", "/filter/chat/addMessageToChat").permitAll()
+                .requestMatchers(LOGIN_PAGE, "/").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(

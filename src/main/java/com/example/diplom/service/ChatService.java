@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChatService {
 
-    public static final String SUPER_CLIENT = "SuperClient v7.77";
-
     private final XimssService ximssService;
 
     private final UserCache userCache;

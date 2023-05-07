@@ -15,16 +15,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -170,44 +166,6 @@ public class XimssService {
             throw new RuntimeException(e);
         }
     }
-
-    public void sendRequests() {
-        String url = String.format(GET_REQUEST_URL, userCache.getSessionIdForCurrentUser(), 20);
-        Runnable requestSender = () -> {
-
-            while (true) {
-                CompletableFuture<ResponseEntity<String>> future = CompletableFuture.supplyAsync(() ->
-                    restTemplate.getForEntity(url, String.class));
-
-                try {
-                    ResponseEntity<String> response = future.get();
-                    String responseBody = response.getBody();
-                    if (!Objects.equals(responseBody, "<XIMSS/>\r\n")) {
-                        System.out.println(responseBody);
-                        final ReadIm readIm = getObjectFromXML(responseBody, ReadIm.class);
-                        if (readIm.getMessageText() != null) {
-                            HttpHeaders headers = new HttpHeaders();
-                            headers.add("Cookie", "JSESSIONID=" + RequestContextHolder.currentRequestAttributes().getSessionId());
-
-                            HttpEntity<String> entity = new HttpEntity<>(headers);
-                            ResponseEntity<String> response1 = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
-
-//                            restTemplate1.getForObject(
-//                                "http://localhost:8080/chat/getChatMessages?userLogin=" + readIm.getPeer().replace("@ivanov.ru", "") + "&message=" + readIm.getMessageText(),
-//                                String.class
-//                            );
-                        }
-                    }
-                    // process the response
-                } catch (InterruptedException | ExecutionException e) {
-                    // handle exception
-                }
-            }
-        };
-        Executors.newSingleThreadExecutor().submit(requestSender);
-
-    }
-
 
     private String getXML(final List<Object> objects) {
         AtomicReference<String> xml = new AtomicReference<>("");

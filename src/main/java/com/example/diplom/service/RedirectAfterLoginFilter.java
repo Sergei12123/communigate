@@ -35,14 +35,9 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
                     .value(String.valueOf(Integer.parseInt(sessionTimeout.replaceAll("\\D+", "")) * 60))
                     .build());
             ximssService.sendRequestToGetNothing(SignalBind.builder().build());
-//            ximssService.sendRequests();
             response.sendRedirect(request.getContextPath() + "/message/all?login");
         } else {
-            if (request.getRequestURI().equals("/filter/chat/addMessageToChat")) {
-                response.sendRedirect(request.getContextPath() + request.getRequestURI().replace("/filter", "") + "?" + request.getQueryString());
-            } else {
-                filterChain.doFilter(request, response);
-            }
+            filterChain.doFilter(request, response);
         }
     }
 }
