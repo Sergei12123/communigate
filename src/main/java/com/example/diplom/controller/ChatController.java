@@ -109,7 +109,7 @@ public class ChatController {
     }
 
     @RequestMapping("/create")
-    private String createChat(Model model, RedirectAttributes redirectAttributes,
+    private String createChat(RedirectAttributes redirectAttributes,
                               @RequestParam(value = "userLogin", required = false) String userLogin) {
         if (userLogin != null) {
             redirectAttributes.addFlashAttribute("userLogin", userLogin.split(",")[0]);
@@ -120,18 +120,9 @@ public class ChatController {
     }
 
     @RequestMapping(value = "/select/{userLogin}")
-    public String selectChat(@PathVariable("userLogin") String userLogin, Model model, RedirectAttributes redirectAttributes) {
+    public String selectChat(@PathVariable("userLogin") String userLogin, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("userLogin", userLogin.replace("$", ""));
         return REDIRECT_CHAT_ALL;
-    }
-
-    @RequestMapping(value = "/addMessageToChat")
-    public String addMessageToChat(@RequestParam(value = "userLogin", required = false) String userLogin,
-                                   @RequestParam(value = "message", required = false) String message,
-                                   Model model,
-                                   RedirectAttributes redirectAttributes) {
-        System.out.println("hiiiii");
-        return CHATS;
     }
 
     @PostMapping("/getChatMessage")
@@ -146,7 +137,10 @@ public class ChatController {
             allChats.stream().filter(el -> el.getUserLogin().equals(chatByLogin.getUserLogin())).forEach(chat -> chat.setCurrent(true));
             String input = objectFromXML.getGmtTime().trim();
             LocalDateTime dateTime = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"));
-            model.addAttribute("chatMessage", ChatMessage.builder().messageText(objectFromXML.getMessageText()).userLogin(login).build());
+            model.addAttribute("chatMessage", ChatMessage.builder()
+                .messageText(objectFromXML.getMessageText().replace("*This message was transferred with a trial version of CommuniGate(r) Pro*", ""))
+                .userLogin(login)
+                .build());
             model.addAttribute(CHAT, chatByLogin);
             model.addAttribute(CHATS, chatService.getAllChats());
             return "chats :: chatMessage";

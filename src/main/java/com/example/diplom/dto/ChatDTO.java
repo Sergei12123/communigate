@@ -39,6 +39,7 @@ public class ChatDTO {
             .map(el -> ChatMessage.builder()
                 .messageText(
                     el.substring(el.indexOf(el.charAt(16)) + 1)
+                        .replace("*This message was transferred with a trial version of CommuniGate(r) Pro*", "")
                         .replace("\t", "")
                         .replace("\\e", "\n")
                         .trim())

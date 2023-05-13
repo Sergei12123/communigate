@@ -71,8 +71,8 @@ public class MessageDTO {
                 this.text = text.substring(text.lastIndexOf("---") + 3);
             } else {
                 this.replyFrom = Arrays.stream(text.split("\n"))
-                    .filter(el -> el.contains("From:"))
-                    .map(el -> el.replace("From:", ""))
+                    .filter(el -> el.contains("From:") || el.contains("От Кого:"))
+                    .map(el -> el.replace("From:", "").replace("От Кого:", ""))
                     .map(el -> el.replace("<", ""))
                     .map(el -> el.replace(">", ""))
                     .reduce((a, b) -> b).orElse(null);
@@ -93,7 +93,7 @@ public class MessageDTO {
         if (this.text != null) {
             if (text.contains("---")) this.text = text.substring(text.lastIndexOf("---") + 3);
 
-            this.text = text.replaceAll("\r", "");
+            this.text = text.replaceAll("\r", "").replace("*This message was transferred with a trial version of CommuniGate(r) Pro*", "");
             while (text.indexOf("\n") == 0) this.text = text.replaceFirst("\n", "");
 
             if (!text.endsWith("\n")) this.text += "\n";
@@ -152,9 +152,13 @@ public class MessageDTO {
                 .map(el -> el.trim().startsWith(">") ? el.trim().replaceFirst(">", "") : el.trim())
                 .collect(Collectors.joining("\n")).split("(?m)^\\s*$"))
             .filter(s -> !s.isEmpty())
-            .map(s -> s.trim().replaceAll("(?m)^\n", ""))
             .toList();
-        return splittedText.stream().skip(splittedText.size() > n ? splittedText.size() - n : 0).findFirst().orElse(null);
+        return splittedText.stream()
+            .skip(splittedText.size() - n)
+            .map(s -> s.trim().replaceAll("(?m)^\n", ""))
+            .map(s -> s.contains("*This message was transferred with a trial") ? s.substring(s.lastIndexOf("Pro*") + 6) : s)
+            .findFirst()
+            .orElse(null);
     }
 
 }

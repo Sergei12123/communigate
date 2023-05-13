@@ -41,7 +41,7 @@
                 <button type="submit" class="btn btn-warning">Выйти</button>
             </form>
         </div>
-        <div class="col-11" style="width: 80vw">
+        <div class="col" style="width: 80vw;">
             <form th:action="@{/message/create}" th:method="post" th:object="${message}">
                 <input type="hidden" th:field="*{reply}">
                 <input type="hidden" th:field="*{forward}">
@@ -81,17 +81,17 @@
                 <h5 class="form-label">Получатель</h5>
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" aria-describedby="basic-addon2" th:field="*{userLogin}"
-                           th:readonly="*{reply && replyFrom==userLogin}"/>
+                           th:readonly="*{reply && replyFrom==userLogin}" required/>
                     <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
                 </div>
 
                 <h5 class="form-label">Тема</h5>
-                <input type="text" class="form-control" th:field="*{title}" th:readonly="*{reply||forward}"/>
+                <input type="text" class="form-control" th:field="*{title}" th:readonly="*{reply||forward}" required/>
 
                 <br>
                 <h5 class="form-label">Текст сообщения</h5>
                 <textarea class="form-control" placeholder="Напишите что-нибудь" style="height: 200px"
-                          th:field="*{text}"></textarea>
+                          th:field="*{text}" required></textarea>
 
                 <br>
                 <br>

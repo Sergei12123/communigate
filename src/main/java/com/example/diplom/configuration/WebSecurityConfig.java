@@ -1,5 +1,6 @@
 package com.example.diplom.configuration;
 
+import com.example.diplom.manager.AuthService;
 import com.example.diplom.manager.XimssService;
 import com.example.diplom.service.CustomLogoutHandler;
 import com.example.diplom.service.RedirectAfterLoginFilter;
@@ -32,12 +33,15 @@ public class WebSecurityConfig {
 
     private final XimssService ximssService;
 
+    private final AuthService authService;
+
     private final UserCache userCache;
 
     private final CustomLogoutHandler logoutHandler;
 
 
-    public static final String LOGIN_PAGE = "/login";
+    public static final String LOGIN_PAGE = "/auth/login";
+    public static final String REGISTRATION_PAGE = "/registration";
 
 
     @Bean
@@ -50,21 +54,22 @@ public class WebSecurityConfig {
             .invalidSessionUrl(LOGIN_PAGE)
             .and()
             .requiresChannel()
-            .requestMatchers(LOGIN_PAGE).requiresSecure()
+            .requestMatchers("/auth/**").requiresSecure()
             .anyRequest().requiresInsecure()
             .and()
             .authorizeHttpRequests((requests) -> requests
-                .requestMatchers(LOGIN_PAGE, "/").permitAll()
+                .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(
                 (form) -> form
-                    .loginPage(LOGIN_PAGE)
+                    .loginPage("/auth")
+                    .loginProcessingUrl("/auth/makeLogin")
                     .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/makeLogout")
-                .logoutSuccessUrl("/login?logout")
+                .logoutSuccessUrl("/auth/login?logout")
                 .addLogoutHandler(logoutHandler)
                 .deleteCookies("JSESSIONID")
                 .invalidateHttpSession(true)
@@ -98,7 +103,7 @@ public class WebSecurityConfig {
         return authentication -> {
             String username = authentication.getName();
             String password = authentication.getCredentials().toString();
-            Session session = ximssService.makeDumbLogin(Login.builder().userName(username).password(password).build());
+            Session session = authService.makeBasicLogin(Login.builder().userName(username).password(password).build());
             if (session.getUrlID() != null) {
                 userCache.set(username, session.getUrlID());
                 return new UsernamePasswordAuthenticationToken(username, password, List.of(new SimpleGrantedAuthority("ROLE_USER")));

@@ -108,7 +108,7 @@
                                 <h5 class="form-label" th:if="${param.new}">Получатель</h5>
                                 <div th:if="${param.new}" class="input-group mb-3">
                                     <input type="text" class="form-control" aria-describedby="basic-addon2"
-                                           th:name="userLogin"/>
+                                           th:name="userLogin" required/>
                                     <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
                                     <button type="submit" th:formaction="@{/chat/create}"
                                             class="btn btn-primary me-2 ms-2"
@@ -249,19 +249,24 @@
                                     });
 
                                 </script>
-
-                                <div>
-                                    <div class="form-outline mt-5">
+                                <br>
+                                <br>
+                                <div class="container">
+                                    <div class="row">
+                                        <!--                                        <div class="form-outline mt-5 col-11">-->
                                         <textarea th:field="${chat_message.messageText}" th:name="messageText"
-                                                  style="width: 45vw"
-                                                  class="form-control" placeholder="Напишите что-нибудь"
-                                                  rows="4"></textarea>
+                                                  class="form-control col" placeholder="Напишите что-нибудь"
+                                                  style="height: calc(7vh+ 30px)"
+                                                  required></textarea>
+
+                                        <input type="hidden" th:field="${chat.userLogin}" th:name="userLogin">
+                                        <br>
+                                        <button type="submit" th:formaction="@{/chat/send}"
+                                                class="btn btn-info btn-rounded col-2 ms-2 p-0"
+                                                style="height: calc(7vh+ 30px);font-size: 1vw">
+                                            <strong>Отправить</strong>
+                                        </button>
                                     </div>
-                                    <input type="hidden" th:field="${chat.userLogin}" th:name="userLogin">
-                                    <br>
-                                    <button type="submit" th:formaction="@{/chat/send}"
-                                            class="btn btn-info btn-rounded float-end">Send
-                                    </button>
                                 </div>
 
 

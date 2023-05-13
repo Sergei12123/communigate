@@ -14,6 +14,7 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
@@ -32,7 +33,11 @@ public class MyConfiguration {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(20000); // 20 seconds
+        requestFactory.setReadTimeout(20000); // 20 seconds
+
+        return new RestTemplate(requestFactory);
     }
 
     @Bean
@@ -53,7 +58,7 @@ public class MyConfiguration {
                 SecurityConstraint securityConstraint = new SecurityConstraint();
                 securityConstraint.setUserConstraint("CONFIDENTIAL");
                 SecurityCollection collection = new SecurityCollection();
-                collection.addPattern("/login");
+                collection.addPattern("/auth/*");
                 securityConstraint.addCollection(collection);
                 context.addConstraint(securityConstraint);
             }

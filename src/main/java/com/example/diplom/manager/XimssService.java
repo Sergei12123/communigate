@@ -3,25 +3,23 @@ package com.example.diplom.manager;
 import com.example.diplom.annotation.PreLoginRequest;
 import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.BaseXIMSS;
-import com.example.diplom.ximss.request.Login;
 import com.example.diplom.ximss.response.ReadIm;
-import com.example.diplom.ximss.response.Session;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
-import org.springframework.http.*;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @AllArgsConstructor
@@ -40,9 +38,6 @@ public class XimssService {
     static private final String DEFAULT_SESSION_SYNC_REQUEST_URL = "http://localhost:8100/Session/%s/sync";
 
     public static final String GET_MESSAGE_URL = "http://localhost:8100/Session/%s/MIME/INBOX/%d-P.txt";
-
-    public static final String GET_REQUEST_URL = "http://localhost:8100/Session/%s/get?maxWait=%d";
-
 
     public <T extends BaseXIMSS, P> P sendRequestToGetObject(final T requestXimssEntity, final Class<P> responseClass) {
         final List<P> list = sendRequestToGetList(requestXimssEntity, responseClass);
@@ -63,9 +58,7 @@ public class XimssService {
             getRequestWithBody(requestXimssEntity),
             String.class
         );
-
         return response == null ? null : getListFromXML(response, responseClass);
-
     }
 
     public String getMessageById(final Long uid) {
@@ -73,37 +66,6 @@ public class XimssService {
             String.format(GET_MESSAGE_URL, userCache.getSessionIdForCurrentUser(), uid),
             String.class
         );
-    }
-
-
-    public Session makeDumbLogin(final Login loginEntity) {
-        HttpHeaders headers = new HttpHeaders();
-        String auth = loginEntity.getUserName() + ":" + loginEntity.getPassword();
-        byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(StandardCharsets.UTF_8));
-        String authHeader = "Basic " + new String(encodedAuth);
-        headers.set("Authorization", authHeader);
-        headers.setAccept(List.of(MediaType.ALL));
-        headers.setConnection("keep-alive");
-        headers.setCacheControl(CacheControl.noCache());
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response;
-        try {
-            response = restTemplate.exchange(
-                DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS,
-                HttpMethod.POST,
-                entity,
-                String.class);
-        } catch (Exception e) {
-            response = ResponseEntity.badRequest().build();
-        }
-        if (response.getStatusCode().equals(HttpStatusCode.valueOf(200))) {
-            return getObjectFromXML(response.getBody(), Session.class);
-        } else {
-            return Session.builder().build();
-        }
     }
 
     public <T> List<T> getListFromXML(final String xmlString, final Class<T> returnType) {
@@ -159,24 +121,12 @@ public class XimssService {
         return xml.replace("<XIMSS>", "").replace("</XIMSS>", "");
     }
 
-    private String getXML(final Object object) {
+    String getXML(final Object object) {
         try {
             return wrapInXimssTag(xmlMapper.writeValueAsString(object));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String getXML(final List<Object> objects) {
-        AtomicReference<String> xml = new AtomicReference<>("");
-        objects.forEach(object -> {
-            try {
-                xml.set(xml.get() + xmlMapper.writeValueAsString(object));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return wrapInXimssTag(xml.get());
     }
 
     private <T extends BaseXIMSS> HttpEntity<String> getRequestWithBody(final T requestXimssEntity) {
@@ -189,7 +139,7 @@ public class XimssService {
         return new HttpEntity<>(res, headers);
     }
 
-    private <T extends BaseXIMSS> String getNecessaryUrl(final T requestXimssEntity) {
+    <T extends BaseXIMSS> String getNecessaryUrl(final T requestXimssEntity) {
         final String url;
         if (requestXimssEntity.getClass().isAnnotationPresent(PreLoginRequest.class)) {
             url = DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS;
