@@ -12,6 +12,7 @@ server:
 logging:
   level:
     org:
+      root: INFO
       springframework:
         security: DEBUG
 spring:

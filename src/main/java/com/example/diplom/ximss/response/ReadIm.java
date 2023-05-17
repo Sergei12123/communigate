@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.response;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSResponse;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JacksonXmlRootElement(localName = "readIM")
-public class ReadIm extends BaseXIMSS {
+public class ReadIm extends BaseXIMSSResponse {
 
     @JacksonXmlProperty(isAttribute = true)
     private String peer;

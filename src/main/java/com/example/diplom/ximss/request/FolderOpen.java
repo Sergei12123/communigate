@@ -1,7 +1,7 @@
 package com.example.diplom.ximss.request;
 
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MessageField;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -18,15 +18,15 @@ import static com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MessageFi
 @Setter
 @Builder
 @JacksonXmlRootElement(localName = "folderOpen")
-public class FolderOpen extends BaseXIMSS {
+public class FolderOpen extends BaseXIMSSRequest {
 
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private String folder="INBOX";
+    private String folder = "INBOX";
 
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private String maibox="INBOX";
+    private String maibox = "INBOX";
 
     @Builder.Default
     @JacksonXmlProperty(localName = "field")

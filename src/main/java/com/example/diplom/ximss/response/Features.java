@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.response;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSResponse;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.SaslType;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "features")
-public class Features extends BaseXIMSS {
+public class Features extends BaseXIMSSResponse {
     @JacksonXmlProperty(isAttribute = true)
     private String domain;
 

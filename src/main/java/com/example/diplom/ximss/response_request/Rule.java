@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.response_request;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RulePriority;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RuleType;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.SignalStage;
@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JacksonXmlRootElement(localName = "rule")
-public class Rule extends BaseXIMSS {
+public class Rule extends BaseXIMSSRequest {
 
     @JacksonXmlProperty(isAttribute = true)
     private String name;

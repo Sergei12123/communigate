@@ -1,6 +1,10 @@
 package com.example.diplom.configuration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
@@ -28,7 +32,12 @@ public class MyConfiguration {
 
     @Bean
     public XmlMapper xmlMapper() {
-        return new XmlMapper();
+        final XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        xmlMapper.registerModule(new JavaTimeModule());
+        xmlMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        xmlMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        return xmlMapper;
     }
 
     @Bean

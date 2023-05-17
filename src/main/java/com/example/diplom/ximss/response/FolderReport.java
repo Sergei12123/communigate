@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.response;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSResponse;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "folderReport")
-public class FolderReport extends BaseXIMSS {
+public class FolderReport extends BaseXIMSSResponse {
 
     @JacksonXmlProperty(isAttribute = true)
     private String folder;

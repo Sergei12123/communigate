@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BaseXIMSS {
+public class BaseXIMSSRequest {
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
     private Long id = System.currentTimeMillis();

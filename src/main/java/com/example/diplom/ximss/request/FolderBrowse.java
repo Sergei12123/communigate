@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.request;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @JacksonXmlRootElement(localName = "folderBrowse")
-public class FolderBrowse extends BaseXIMSS {
+public class FolderBrowse extends BaseXIMSSRequest {
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
     private String folder = "INBOX";

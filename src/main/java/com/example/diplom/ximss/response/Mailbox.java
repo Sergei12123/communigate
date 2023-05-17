@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.response;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSResponse;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JacksonXmlRootElement(localName = "mailbox")
-public class Mailbox extends BaseXIMSS {
+public class Mailbox extends BaseXIMSSResponse {
 
     @JacksonXmlProperty(isAttribute = true)
     private String mailbox;

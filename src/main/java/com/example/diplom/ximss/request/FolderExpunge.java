@@ -1,7 +1,7 @@
 package com.example.diplom.ximss.request;
 
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @JacksonXmlRootElement(localName = "folderExpunge")
-public class FolderExpunge extends BaseXIMSS {
+public class FolderExpunge extends BaseXIMSSRequest {
 
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)

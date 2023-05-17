@@ -1,6 +1,6 @@
 package com.example.diplom.ximss.request;
 
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @JacksonXmlRootElement(localName = "sendIM")
-public class SendIm extends BaseXIMSS {
+public class SendIm extends BaseXIMSSRequest {
 
     @JacksonXmlProperty(isAttribute = true)
     private String peer;

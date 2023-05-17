@@ -32,7 +32,7 @@ public class MessageController {
     }
 
     @PostMapping("/create")
-    private String sendMessage(@ModelAttribute(MESSAGES) MessageDTO messageDTO, RedirectAttributes redirectAttributes) {
+    private String sendMessage(@ModelAttribute(MESSAGE) MessageDTO messageDTO, RedirectAttributes redirectAttributes) {
         if (messageDTO.isReply()) {
             messageService.replyFromMessage(messageDTO);
         } else if (messageDTO.isForward()) {

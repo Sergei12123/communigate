@@ -2,7 +2,7 @@ package com.example.diplom.manager;
 
 import com.example.diplom.dto.UserDTO;
 import com.example.diplom.service.UserCache;
-import com.example.diplom.ximss.BaseXIMSS;
+import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.example.diplom.ximss.request.Login;
 import com.example.diplom.ximss.request.Signup;
 import com.example.diplom.ximss.response.Response;
@@ -88,7 +88,7 @@ public class AuthService {
         return listFromXML.isEmpty() ? null : listFromXML.get(0);
     }
 
-    private <T extends BaseXIMSS> HttpEntity<String> getRequestWithBody(final T requestXimssEntity) {
+    private <T extends BaseXIMSSRequest> HttpEntity<String> getRequestWithBody(final T requestXimssEntity) {
         String res = ximssService.getXML(requestXimssEntity);
         HttpHeaders headers = new HttpHeaders();
         headers.setCacheControl(CacheControl.noCache());

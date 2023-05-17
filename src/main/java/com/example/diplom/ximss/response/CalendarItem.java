@@ -1,33 +1,27 @@
 package com.example.diplom.ximss.response;
 
 import com.example.diplom.ximss.BaseXIMSSResponse;
-import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.FolderReadMode;
-import com.example.diplom.ximss.response_request.Email;
+import com.example.diplom.ximss.response_request.VTodo;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @Builder
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@JacksonXmlRootElement(localName = "folderMessage")
-public class FolderMessage extends BaseXIMSSResponse {
-
-    @Builder.Default
-    @JacksonXmlProperty(isAttribute = true)
-    private String folder = "INBOX";
+@JacksonXmlRootElement(localName = "calendarItem")
+public class CalendarItem extends BaseXIMSSResponse {
 
     @JacksonXmlProperty(isAttribute = true)
-    private FolderReadMode mode;
+    private String calendar;
 
     @JacksonXmlProperty(isAttribute = true, localName = "UID")
     private Long uid;
 
-    @JacksonXmlProperty(localName = "EMail")
-    private Email email;
-
+    @JacksonXmlProperty(localName = "vtodo")
+    private VTodo vTodo;
 }

@@ -1,6 +1,5 @@
 package com.example.diplom.ximss.request;
 
-
 import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
@@ -11,11 +10,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-@JacksonXmlRootElement(localName = "folderClose")
-public class FolderClose extends BaseXIMSSRequest {
+@JacksonXmlRootElement(localName = "findTasks")
+public class FindTasks extends BaseXIMSSRequest {
 
-    @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private String folder = "INBOX";
+    private String calendar;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private String timeFrom;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private String timeTill;
+
+    @JacksonXmlProperty(isAttribute = true)
+    private String completed;
 
 }
