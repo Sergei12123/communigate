@@ -2,6 +2,7 @@ package com.example.diplom.service;
 
 import com.example.diplom.dto.MessageDTO;
 import com.example.diplom.manager.XimssService;
+import com.example.diplom.ximss.parts_of_ximss.MessageText;
 import com.example.diplom.ximss.parts_of_ximss.XimssAddress;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.FolderReadMode;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MimeMessageSubtype;
@@ -11,7 +12,10 @@ import com.example.diplom.ximss.response.FolderMessage;
 import com.example.diplom.ximss.response.FolderReport;
 import com.example.diplom.ximss.response.Mime;
 import com.example.diplom.ximss.response_request.Email;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -31,6 +36,8 @@ public class MessageService {
     public static final String SUPER_CLIENT = "SuperClient v7.77";
 
     private final XimssService ximssService;
+
+    private final XmlMapper xmlMapper;
 
     private final UserCache userCache;
 
@@ -44,13 +51,7 @@ public class MessageService {
             .toList();
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
         return folderMessages.stream()
-            .map(entry -> {
-                try {
-                    return new MessageDTO(entry.getKey(), entry.getValue());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }).toList();
+            .map(this::getMessageDTO).toList();
 
     }
 
@@ -66,17 +67,25 @@ public class MessageService {
                     Mime.builder()
                         .type(MimeMessageType.TEXT)
                         .subtype(MimeMessageSubtype.PLAIN)
-                        .messageText(messageDTO.getText())
+                        .messageText(getMessageText(messageDTO))
                         .build()
                 )
                 .build()
         ).build());
     }
 
+    private String getMessageText(MessageDTO messageDTO) {
+        try {
+            return xmlMapper.writeValueAsString(MessageText.builder().text(messageDTO.getText()).tasks(messageDTO.getTasks()).build());
+        } catch (JsonProcessingException e) {
+            return messageDTO.getText();
+        }
+    }
+
     public void replyFromMessage(final MessageDTO messageDTO) {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
         final Email email = ximssService.sendRequestToGetObject(FolderRead.builder().uid(messageDTO.getUid()).mode(FolderReadMode.REPLY_FROM).build(), FolderMessage.class).getEmail();
-        email.getMime().addText(messageDTO.getText());
+        email.getMime().addText(getMessageText(messageDTO));
         ximssService.sendRequestToGetNothing(MessageSubmit.builder().email(email).build());
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
     }
@@ -84,7 +93,7 @@ public class MessageService {
     public void forwardMessage(final MessageDTO messageDTO) {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
         final Email email = ximssService.sendRequestToGetObject(FolderRead.builder().uid(messageDTO.getUid()).mode(FolderReadMode.FORWARD).build(), FolderMessage.class).getEmail();
-        email.getMime().addText(messageDTO.getText());
+        email.getMime().addText(getMessageText(messageDTO));
         email.setTo(new XimssAddress(messageDTO.getUserLogin()));
         ximssService.sendRequestToGetNothing(MessageSubmit.builder().email(email).build());
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
@@ -101,8 +110,23 @@ public class MessageService {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
         Map.Entry<Long, MimeMessageParser> messageById = getMessageEntry(uid);
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
+
+        return getMessageDTO(messageById);
+    }
+
+    private MessageDTO getMessageDTO(Map.Entry<Long, MimeMessageParser> messageById) {
         try {
-            return new MessageDTO(messageById.getKey(), messageById.getValue());
+            final MessageDTO messageDTO = new MessageDTO(messageById.getKey(), messageById.getValue());
+            if (messageDTO.getText().startsWith("<messageText>")) {
+                try {
+                    MessageText messageText = xmlMapper.readValue(messageDTO.getText(), MessageText.class);
+                    messageDTO.setText(messageText.getText() + "\n");
+                    messageDTO.setTasks(messageText.getTasks());
+                } catch (Exception e) {
+                    log.info("Get wrong xml in MessageText: " + messageDTO.getText());
+                }
+            }
+            return messageDTO;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

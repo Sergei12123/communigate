@@ -59,7 +59,7 @@ public class XimssService {
 
     private <T extends BaseXIMSSRequest> boolean checkResponse(T requestXimssEntity, String responseXml) {
         try {
-            final Response response = xmlMapper.readValue(responseXml, Response.class);
+            final Response response = xmlMapper.treeToValue(xmlMapper.readTree(responseXml).get("response"), Response.class);
             if (response.getErrorNum() != null) {
                 log.error("Get error response on: \n " + getRequestWithBody(requestXimssEntity).getBody());
                 log.error(response.toString());
