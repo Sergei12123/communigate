@@ -68,6 +68,7 @@
                 </div>
                 <script>
                     $(document).ready(function () {
+                        // Get references to the buttons and form
                         var saveButton = $("button[value='save']");
                         var newButton = $("button[value='new']");
                         var deleteButton = $("button[value='delete']");
@@ -76,19 +77,26 @@
 
                         var form = $("form");
 
+                        // Event handler for the Save button click
                         saveButton.on("click", function () {
+                            // Enable the 'required' attribute for all input fields within the form
                             form.find("input[id='taskText']").prop("required", true);
                         });
 
+                        // Event handler for the New button click
                         newButton.on("click", function () {
+                            // Enable the 'required' attribute for all input fields within the form
                             form.find("input[id='taskText']").prop("required", true);
                         });
 
+                        // Event handler for the Delete button click
                         deleteButton.on("click", function () {
+                            // Disable the 'required' attribute for all input fields within the form
                             form.find("input[id='taskText']").prop("required", false);
                         });
 
                         doneButton.on("click", function () {
+                            // Disable the 'required' attribute for all input fields within the form
                             form.find("input[id='taskText']").prop("required", false);
                         });
                     });

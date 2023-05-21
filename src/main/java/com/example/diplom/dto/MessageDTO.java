@@ -12,7 +12,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -25,33 +24,29 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class MessageDTO {
 
-    private final static Pattern REPLY_PATTERN = Pattern.compile("On (.*?)\\r?\\n\\s*<(.*?)> wrote:\\r?\\n(?:>\\s*(.*?)\\r?\\n){2}((?:.*\\r?\\n)*)");
+    public final static Pattern REPLY_PATTERN = Pattern.compile("On (.*?)\\r?\\n\\s*<(.*?)> wrote:\\r?\\n(?:>\\s*(.*?)\\r?\\n){2}((?:.*\\r?\\n)*)");
 
     private Long uid;
 
-    private String userLogin;
+    public String userLogin;
 
-    private String title;
+    public String title;
 
-    private String text;
+    public String text;
 
-    private String replyFrom;
+    public String replyFrom;
 
-    private String replyText;
+    public String replyText;
 
-    private String replyTitle;
+    public String replyTitle;
 
-    private boolean selected;
+    public boolean selected;
 
     private boolean reply;
 
     private boolean forward;
 
-    @Builder.Default
-    private List<TaskDTO> tasks = new ArrayList<>();
-
     public MessageDTO(final Long uid, final MimeMessageParser mimeMessageParser) throws Exception {
-        this.tasks = new ArrayList<>();
         this.userLogin = mimeMessageParser.getFrom();
         this.title = mimeMessageParser.getSubject();
         this.uid = uid;
@@ -104,6 +99,7 @@ public class MessageDTO {
             if (!text.endsWith("\n")) this.text += "\n";
         }
 
+
     }
 
     private String getTextFromMessage(Message message) throws IOException, MessagingException {
@@ -125,6 +121,8 @@ public class MessageDTO {
             throw new MessagingException("Multipart with no body parts not supported.");
         boolean multipartAlt = new ContentType(mimeMultipart.getContentType()).match("multipart/alternative");
         if (multipartAlt)
+            // alternatives appear in an order of increasing
+            // faithfulness to the original content. Customize as req'd.
             return getTextFromBodyPart(mimeMultipart.getBodyPart(count - 1));
         String result = "";
         for (int i = 0; i < count; i++) {
@@ -134,7 +132,9 @@ public class MessageDTO {
         return result;
     }
 
-    private String getTextFromBodyPart(BodyPart bodyPart) throws IOException, MessagingException {
+    private String getTextFromBodyPart(
+        BodyPart bodyPart) throws IOException, MessagingException {
+
         String result = "";
         if (bodyPart.isMimeType("text/plain")) {
             result = (String) bodyPart.getContent();

@@ -1,9 +1,7 @@
 package com.example.diplom.controller;
 
 import com.example.diplom.dto.MessageDTO;
-import com.example.diplom.dto.TaskDTO;
 import com.example.diplom.service.MessageService;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,8 +14,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class MessageController {
 
     private final MessageService messageService;
-
-    private final XmlMapper xmlMapper;
 
     private static final String MESSAGE = "message";
 
@@ -32,18 +28,6 @@ public class MessageController {
     private String newMessagePage(Model model) {
         if (model.getAttribute(MESSAGE) == null)
             model.addAttribute(MESSAGE, MessageDTO.builder().build());
-        return NEW_MESSAGE;
-    }
-
-    @PostMapping("/addTask")
-    private String addTask(@ModelAttribute(MESSAGE) MessageDTO messageDTO) {
-        messageDTO.getTasks().add(TaskDTO.builder().build());
-        return NEW_MESSAGE;
-    }
-
-    @PostMapping("/removeTask")
-    private String removeTask(@ModelAttribute(MESSAGE) MessageDTO messageDTO) {
-        messageDTO.getTasks().remove(messageDTO.getTasks().size() - 1);
         return NEW_MESSAGE;
     }
 

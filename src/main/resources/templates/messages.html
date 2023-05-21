@@ -141,11 +141,6 @@
                         <button class="btn btn-primary" th:formaction="@{/message/forwardTo/{uid}(uid=${message.uid})}">
                             Переслать
                         </button>
-                        <button class="btn btn-primary" th:if="${!message.tasks.isEmpty()}"
-                                th:formaction="@{/message/forwardTo/{uid}(uid=${message.uid})}"
-                                th:text="${message.tasks.size()==1?'Создать задачу из письма':'Создать задачи из письма'}">
-                            Создать задачу из письма
-                        </button>
                     </div>
 
 

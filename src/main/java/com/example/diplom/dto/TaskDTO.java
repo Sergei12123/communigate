@@ -1,9 +1,6 @@
 package com.example.diplom.dto;
 
 import com.example.diplom.ximss.response.CalendarItem;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -14,7 +11,6 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class TaskDTO {
 
     private String taskUid;
@@ -23,18 +19,14 @@ public class TaskDTO {
 
     private String taskText;
 
-    @JsonIgnore
     private int percentComplete;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HHmmss")
     private LocalDateTime timeStart;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMdd'T'HHmmss")
     private LocalDateTime timeEnd;
 
-    @JsonIgnore
     private boolean selected;
 
     public TaskDTO(final CalendarItem calendarItem) {
@@ -46,6 +38,10 @@ public class TaskDTO {
             this.timeEnd = calendarItem.getVTodo().getDue();
             this.percentComplete = calendarItem.getVTodo().getPercentComplete();
         }
+    }
+
+    public TaskDTO(final String taskText) {
+        this.taskText = taskText;
     }
 
 }
