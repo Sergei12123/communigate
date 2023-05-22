@@ -26,7 +26,7 @@ public class FolderOpen extends BaseXIMSSRequest {
 
     @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private String maibox = "INBOX";
+    private String mailbox = "INBOX";
 
     @Builder.Default
     @JacksonXmlProperty(localName = "field")

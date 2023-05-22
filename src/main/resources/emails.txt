@@ -69,6 +69,20 @@
 "тексттт", NONE
 "текстттт", NONE
 "тексттттт", NONE
-"кирилл 2", NONE
+"0", NONE
+"1", NONE
+"2", NONE
+"3", NONE
+"4", NONE
+"5", NONE
+"6", NONE
+"7", NONE
+"8", NONE
+"9", NONE
+"10", NONE
+"Сбегай на рынок", TASK
+"Встретимся на рынке", MEETING
+"Сходи на вокзал", TASK
+
 
 

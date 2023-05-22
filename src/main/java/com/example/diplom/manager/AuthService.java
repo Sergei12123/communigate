@@ -1,13 +1,11 @@
 package com.example.diplom.manager;
 
 import com.example.diplom.dto.UserDTO;
-import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.example.diplom.ximss.request.Login;
 import com.example.diplom.ximss.request.Signup;
 import com.example.diplom.ximss.response.Response;
 import com.example.diplom.ximss.response.Session;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -21,21 +19,13 @@ import java.util.List;
 @AllArgsConstructor
 public class AuthService {
 
-    private final XmlMapper xmlMapper;
 
     private final RestTemplate restTemplate;
 
-    private final UserCache userCache;
 
     private final XimssService ximssService;
 
     static private final String DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
-
-    static private final String DEFAULT_SESSION_SYNC_REQUEST_URL = "http://localhost:8100/Session/%s/sync";
-
-    public static final String GET_MESSAGE_URL = "http://localhost:8100/Session/%s/MIME/INBOX/%d-P.txt";
-
-    public static final String GET_REQUEST_URL = "http://localhost:8100/Session/%s/get?maxWait=%d";
 
     public Session makeBasicLogin(final Login loginEntity) {
         HttpHeaders headers = new HttpHeaders();

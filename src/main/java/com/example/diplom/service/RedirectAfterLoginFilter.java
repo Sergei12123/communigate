@@ -1,8 +1,10 @@
 package com.example.diplom.service;
 
+import com.example.diplom.dictionary.FolderName;
 import com.example.diplom.manager.XimssService;
-import com.example.diplom.ximss.request.SetSessionOption;
-import com.example.diplom.ximss.request.SignalBind;
+import com.example.diplom.ximss.request.*;
+import com.example.diplom.ximss.response.FileInfo;
+import com.example.diplom.ximss.response.Mailbox;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 public class RedirectAfterLoginFilter extends OncePerRequestFilter {
 
@@ -35,6 +38,14 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
                     .value(String.valueOf(Integer.parseInt(sessionTimeout.replaceAll("\\D+", "")) * 60))
                     .build());
             ximssService.sendRequestToGetNothing(SignalBind.builder().build());
+            List<String> folderNames = FolderName.getFolderNames();
+            List<Mailbox> mailboxes = ximssService.sendRequestToGetList(MailboxList.builder().build(), Mailbox.class);
+            folderNames.removeAll(mailboxes.stream().map(Mailbox::getMailbox).filter(el -> FolderName.getFolderNames().contains(el)).toList());
+            folderNames.forEach(folderName -> ximssService.sendRequestToGetNothing(MailboxCreate.builder().mailbox(folderName).build()));
+            if (!ximssService.sendRequestToGetList(FileList.builder().build(), FileInfo.class).stream().map(FileInfo::getDirectory).toList().contains("private/IM")) {
+                ximssService.sendRequestToGetNothing(FileDirCreate.builder().fileName("private/IM").build());
+            }
+
             response.sendRedirect(request.getContextPath() + "/message/all?login");
         } else {
             filterChain.doFilter(request, response);

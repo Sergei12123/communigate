@@ -13,9 +13,8 @@ import lombok.Setter;
 @JacksonXmlRootElement(localName = "fileList")
 public class FileList extends BaseXIMSSRequest {
 
-    @Builder.Default
     @JacksonXmlProperty(isAttribute = true)
-    private String directory = "private/IM";
+    private String directory;
 
     @JacksonXmlProperty(isAttribute = true)
     private String fileName;
