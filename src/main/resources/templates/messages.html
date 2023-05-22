@@ -8,6 +8,8 @@
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
     <title>Почта</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 </head>
 <body>
 
@@ -73,15 +75,32 @@
 
             <br>
 
-            <form th:action="@{/message/delete}" th:method="post">
+            <form th:action="@{/message/delete}" th:object="${messagesForm}" th:method="post">
                 <div class="btn-group">
-                    <a href="/message/new" class="btn btn-primary me-2">Написать письмо</a>
-                    <button type="submit" class="btn btn-danger me-2">Удалить</button>
+                    <button th:formaction="@{/message/new}" value="sendMessage" class="btn btn-primary me-2 fw-bold">
+                        Написать
+                        письмо
+                    </button>
+                    <button type="submit" value="deleteMessages" class="btn btn-danger me-2 fw-bold">Удалить</button>
                 </div>
 
 
-                <div class="card mt-3 mb-3" th:each="message : ${messages}">
+                <div class="card mt-3 mb-3" th:each="message, index : ${messagesForm.messages}">
                     <div class="form-check card-header ">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].uid}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].text}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].userLogin}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].title}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].replyFrom}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].replyText}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].replyTitle}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].selected}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].reply}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].forward}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].haveTask}">
+                        <input type="hidden" th:field="*{messages[__${index.index}__].haveMeeting}">
+
+
                         <input class="form-check-input p-3 gx-10 ms-0 me-2"
                                type="checkbox"
                                name="selectedMessages"
@@ -91,7 +110,7 @@
                         <div class="h2 mt-0" th:text="${message.userLogin+(message.reply?' ↩':'')}">login
                         </div>
                     </div>
-                    <div class="card-body ps-5 pe-5">
+                    <div class="card-body ps-5 pe-5" th:object="${messagesForm}">
                         <div th:if="${message.reply}">
                             <div class="card">
                                 <div class="card-header ">
@@ -127,20 +146,152 @@
                             <br>
                         </div>
                         <h5 class="card-title" th:text="${message.title}">title</h5>
-                        <th:block th:if="${message.text}">
-                            <th:block th:each="str, stat : ${message.text.split('\r\n|\r|\n', -1)}">
-                                <th:block class="p card-text" th:text="${str}"/>
-                                <br th:if="${!stat.last}"/>
+                        <div class="card-text mb-3">
+                            <th:block th:if="${message.text}">
+                                <th:block th:each="str, stat : ${message.text.split('\r\n|\r|\n', -1)}">
+                                    <th:block th:text="${str}"/>
+                                    <br th:if="${!stat.last}"/>
+                                </th:block>
                             </th:block>
-                        </th:block>
-                        <br>
+                        </div>
+                        <input type="hidden" th:field="*{messages[__${index.index}__].tasks}">
 
-                        <button class="btn btn-primary" th:formaction="@{/message/replyTo/{uid}(uid=${message.uid})}">
+
+                        <div th:if="${message.tasks!=null && !message.tasks.isEmpty()}"
+                             class="row justify-content-center">
+                            <div class="col-md-6 text-center mb-3 mt-3">
+                                <div class="badge bg-success text-wrap text-center" style="width: 60%;">
+                                    <h5>Задачи</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-3" style="min-width: 700px;max-width:1000px;margin: auto"
+                             th:each="task, taskIndex : ${message.tasks}">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].taskUid}">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].uid}">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].percentComplete}">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].fieldsDisabled}">
+
+                            <div class="input-group form-check card-header">
+                                <div class="form-floating" style="width: calc(100% - 57px);">
+                                    <input type="text" class="form-control fw-bold fs-4"
+                                           placeholder="Enter login"
+                                           id="taskText"
+                                           th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].taskText}"
+                                           th:value="${task.taskText}"
+                                           th:readonly="${task.fieldsDisabled}"
+                                           style="height: 50px"/>
+                                    <label class="mt-0 pt-2" for="taskText">Название задачи</label>
+                                </div>
+                            </div>
+
+                            <div class="card-body ps-5 pe-5">
+                                <div class="row">
+
+                                    <div class="col">
+                                        <div class="col mb-0" style="max-width: 220px">
+                                            <h5>Начало выполнения</h5>
+                                        </div>
+                                        <div class="col"
+                                             style="max-width: 195px">
+                                            <input th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].timeStart}"
+                                                   th:readonly="${task.fieldsDisabled}"
+                                                   th:value="${#temporals.format(task.timeStart, 'yyyy-MM-dd''T''HH:mm')}"
+                                                   type="datetime-local" class="form-control"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="col mb-0" style="max-width: 200px">
+                                            <h5>Срок выполнения</h5>
+                                        </div>
+                                        <div class="col"
+                                             style="max-width: 195px">
+                                            <input th:field="*{messages[__${index.index}__].tasks[__${taskIndex.index}__].timeEnd}"
+                                                   th:readonly="${task.fieldsDisabled}"
+                                                   th:value="${#temporals.format(task.timeEnd, 'yyyy-MM-dd''T''HH:mm')}"
+                                                   type="datetime-local"
+                                                   class="form-control"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col pt-3">
+                                        <button class="col btn btn-success fw-bold" style="width: 90px; height: 50px"
+                                                value="createTask"
+                                                th:if="${!task.fieldsDisabled}"
+                                                th:formaction="@{/message/createTask/{taskUid}(taskUid=${task.getTaskUid()})}">
+                                            Создать
+                                        </button>
+
+                                        <button class="col-1 ms-1 btn btn-danger fw-bold"
+                                                style="width: 50px;height: 50px"
+                                                value="deleteTask"
+                                                th:if="${!task.fieldsDisabled}"
+                                                th:formaction="@{/message/deleteTask/{taskUid}(taskUid=${task.getTaskUid()})}">
+                                            -
+                                        </button>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                        <button class="btn btn-primary fw-bold" value="replyMessage"
+                                th:formaction="@{/message/replyTo/{uid}(uid=${message.uid})}">
                             Ответить
                         </button>
-                        <button class="btn btn-primary" th:formaction="@{/message/forwardTo/{uid}(uid=${message.uid})}">
+                        <button class="btn btn-primary fw-bold" value="forwardMessage"
+                                th:formaction="@{/message/forwardTo/{uid}(uid=${message.uid})}">
                             Переслать
                         </button>
+                        <button class="btn btn-success fw-bold" value="createNewTask" th:if="${message.haveTask}"
+                                th:formaction="@{/message/createNewTask/{uid}(uid=${message.uid})}">
+                            Создать задачу
+                        </button>
+                        <button class="btn btn-warning fw-bold" type="button" th:if="${message.haveMeeting}"
+                                th:formaction="@{/message/createMeeting/{uid}(uid=${message.uid})}">
+                            Создать встречу
+                        </button>
+
+                        <script>
+                            $(document).ready(function () {
+                                var createNewTaskButton = $("button[value='createNewTask']");
+                                var createTaskButton = $("button[value='createTask']");
+                                var deleteMessagesButton = $("button[value='deleteMessages']");
+                                var sendMessageButton = $("button[value='sendMessage']");
+                                var forwardMessageButton = $("button[value='forwardMessage']");
+                                var replyMessageButton = $("button[value='replyMessage']");
+
+
+                                var form = $("form");
+                                createNewTaskButton.on("click", function () {
+                                    form.find("input[id='taskText']").prop("required", true);
+                                });
+                                createTaskButton.on("click", function () {
+                                    form.find("input[id='taskText']").prop("required", true);
+                                });
+                                deleteMessagesButton.on("click", function () {
+                                    form.find("input[id='taskText']").prop("required", false);
+                                });
+                                sendMessageButton.on("click", function () {
+                                    form.find("input[id='taskText']").prop("required", false);
+                                });
+                                forwardMessageButton.on("click", function () {
+                                    form.find("input[id='taskText']").prop("required", false);
+                                });
+                                replyMessageButton.on("click", function () {
+                                    form.find("input[id='taskText']").prop("required", false);
+                                });
+                            });
+                        </script>
                     </div>
 
 

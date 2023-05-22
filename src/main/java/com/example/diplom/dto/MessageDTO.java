@@ -12,6 +12,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -28,25 +29,33 @@ public class MessageDTO {
 
     private Long uid;
 
-    public String userLogin;
+    private String userLogin;
 
-    public String title;
+    private String title;
 
-    public String text;
+    private String text;
 
-    public String replyFrom;
+    private String replyFrom;
 
-    public String replyText;
+    private String replyText;
 
-    public String replyTitle;
+    private String replyTitle;
 
-    public boolean selected;
+    private List<TaskDTO> tasks;
+
+    private boolean selected;
 
     private boolean reply;
 
     private boolean forward;
 
+    private boolean haveTask;
+
+    private boolean haveMeeting;
+
+
     public MessageDTO(final Long uid, final MimeMessageParser mimeMessageParser) throws Exception {
+        this.tasks = new ArrayList<>();
         this.userLogin = mimeMessageParser.getFrom();
         this.title = mimeMessageParser.getSubject();
         this.uid = uid;

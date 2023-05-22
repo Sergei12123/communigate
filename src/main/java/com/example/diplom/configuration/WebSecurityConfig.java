@@ -76,6 +76,8 @@ public class WebSecurityConfig {
                 .clearAuthentication(true)
                 .permitAll())
             .addFilterAfter(redirectAfterLoginFilter(), UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement()
+            .maximumSessions(1)
         ;
 
         return http.build();

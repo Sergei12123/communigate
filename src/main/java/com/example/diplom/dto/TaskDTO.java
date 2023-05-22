@@ -27,7 +27,11 @@ public class TaskDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime timeEnd;
 
+    private LocalDateTime timeCreated;
+
     private boolean selected;
+
+    private boolean fieldsDisabled;
 
     public TaskDTO(final CalendarItem calendarItem) {
         if (calendarItem.getVTodo() != null) {
@@ -36,6 +40,7 @@ public class TaskDTO {
             this.taskText = calendarItem.getVTodo().getSummary();
             this.timeStart = calendarItem.getVTodo().getDtstart();
             this.timeEnd = calendarItem.getVTodo().getDue();
+            this.timeCreated = calendarItem.getVTodo().getCreated();
             this.percentComplete = calendarItem.getVTodo().getPercentComplete();
         }
     }

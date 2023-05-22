@@ -2,6 +2,7 @@ package com.example.diplom.service;
 
 import com.example.diplom.dto.MessageDTO;
 import com.example.diplom.manager.XimssService;
+import com.example.diplom.text_categorize.TextCategorizerService;
 import com.example.diplom.ximss.parts_of_ximss.XimssAddress;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.FolderReadMode;
 import com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.MimeMessageSubtype;
@@ -32,6 +33,8 @@ public class MessageService {
 
     private final XimssService ximssService;
 
+    private final TextCategorizerService textCategorizerService;
+
     private final UserCache userCache;
 
 
@@ -44,14 +47,33 @@ public class MessageService {
             .toList();
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
         return folderMessages.stream()
-            .map(entry -> {
-                try {
-                    return new MessageDTO(entry.getKey(), entry.getValue());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }).toList();
+            .map(this::getMessageDTO)
+            .toList();
+    }
 
+    public MessageDTO getMessageByUid(final Long uid) {
+        ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
+        Map.Entry<Long, MimeMessageParser> messageById = getMessageEntry(uid);
+        ximssService.sendRequestToGetNothing(FolderClose.builder().build());
+        return getMessageDTO(messageById);
+
+    }
+
+    private MessageDTO getMessageDTO(Map.Entry<Long, MimeMessageParser> messageById) {
+        try {
+            MessageDTO messageDTO = new MessageDTO(messageById.getKey(), messageById.getValue());
+            switch (textCategorizerService.classifyTexts(messageDTO.getText())) {
+                case TASK -> messageDTO.setHaveTask(true);
+                case MEETING -> messageDTO.setHaveMeeting(true);
+                case TASK_AND_MEETING -> {
+                    messageDTO.setHaveMeeting(true);
+                    messageDTO.setHaveTask(true);
+                }
+            }
+            return messageDTO;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -95,17 +117,6 @@ public class MessageService {
         ximssService.sendRequestToGetNothing(MessageMark.builder().flags("Deleted").uid(Arrays.stream(selectedMessages).toList()).build());
         ximssService.sendRequestToGetNothing(FolderExpunge.builder().build());
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
-    }
-
-    public MessageDTO getMessageByUid(final Long uid) {
-        ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
-        Map.Entry<Long, MimeMessageParser> messageById = getMessageEntry(uid);
-        ximssService.sendRequestToGetNothing(FolderClose.builder().build());
-        try {
-            return new MessageDTO(messageById.getKey(), messageById.getValue());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private Map.Entry<Long, MimeMessageParser> getMessageEntry(final Long uid) {

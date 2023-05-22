@@ -44,7 +44,7 @@ public class TaskController {
                 taskService.updateTasks(tasksForm.getTasks());
                 break;
             case "delete":
-                taskService.deleteTasks(tasksForm.getTasks());
+                taskService.deleteTasks(tasksForm.getTasks().stream().filter(TaskDTO::isSelected).toList());
                 tasksForm.getTasks().removeAll(tasksForm.getTasks().stream().filter(TaskDTO::isSelected).toList());
                 break;
             case "new":

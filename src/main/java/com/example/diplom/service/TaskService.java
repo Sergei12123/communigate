@@ -22,15 +22,7 @@ public class TaskService {
 
     private final XimssService ximssService;
 
-    private final UserCache userCache;
-
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-
-    private static final String FILE_IM_1_PATH_PATTERN = "private/IM/%s@ivanov.ru.log";
-
-    private static final String FILE_IM_2_PATH_PATTERN = "private/IM/%s@ivanov.log";
-
-    private static final String FILE_IM_3_PATH_PATTERN = "private/IM/%s.log";
 
     public static final String TASKS = "Tasks";
 
@@ -98,13 +90,11 @@ public class TaskService {
 
     public void deleteTasks(final List<TaskDTO> tasks) {
         ximssService.sendRequestToGetNothing(CalendarOpen.builder().calendar(TASKS).build());
-        tasks.stream()
-            .filter(TaskDTO::isSelected)
-            .forEach(taskDTO -> ximssService.sendRequestToGetNothing(
-                CalendarCancel.builder()
-                    .calendar(TASKS)
-                    .itemUid(taskDTO.getTaskUid())
-                    .build()));
+        tasks.forEach(taskDTO -> ximssService.sendRequestToGetNothing(
+            CalendarCancel.builder()
+                .calendar(TASKS)
+                .itemUid(taskDTO.getTaskUid())
+                .build()));
         ximssService.sendRequestToGetNothing(CalendarClose.builder().calendar(TASKS).build());
     }
 

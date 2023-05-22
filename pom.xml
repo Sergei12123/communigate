@@ -102,6 +102,14 @@
             <version>2.13.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.aliasi</groupId>
+            <artifactId>lingpipe</artifactId>
+            <version>4.0.1</version>
+            <scope>system</scope>
+            <systemPath>D:/Study/Diplom/diplom/src/main/resources/lingpipe-4.0.1.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <build>
