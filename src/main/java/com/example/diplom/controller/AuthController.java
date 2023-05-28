@@ -2,8 +2,6 @@ package com.example.diplom.controller;
 
 import com.example.diplom.dto.UserDTO;
 import com.example.diplom.manager.AuthService;
-import com.example.diplom.service.ChatService;
-import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.response.Response;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -21,20 +19,11 @@ import java.util.Objects;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final ChatService chatService;
-
     private final AuthService authService;
-
-    private final UserCache userCache;
-
-    private static final String LOGIN = "login";
 
     private static final String REGISTRATION = "registration";
 
     private static final String USER_DTO = "userDto";
-
-
-    private static final String ACTIVE_TAB = "activeTab";
 
     private static final String REDIRECT_LOGIN = "redirect:/auth/login";
 

@@ -19,7 +19,7 @@ import static com.example.diplom.dto.ChatDTO.getShortLogin;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/chat")
+@RequestMapping("/chat")
 public class ChatController {
 
     public static final String USER_LOGIN = "userLogin";
@@ -42,7 +42,7 @@ public class ChatController {
         return userCache.getSessionIdForCurrentUser();
     }
 
-    @RequestMapping("/all")
+    @GetMapping("/all")
     public String allChats(Model model) {
         List<ChatDTO> allChats = chatService.getAllChats();
         if (allChats == null) allChats = new ArrayList<>();
@@ -95,7 +95,7 @@ public class ChatController {
         return REDIRECT_CHAT_ALL + (selectedChats.size() == 1 ? "?signalDeleted" : "?signalsDeleted");
     }
 
-    @RequestMapping("/new")
+    @PostMapping("/new")
     public String newChat(Model model, RedirectAttributes redirectAttributes,
                           @RequestParam(value = USER_LOGIN, required = false) String userLogin) {
         if (model.getAttribute("new") == null) {
@@ -106,7 +106,7 @@ public class ChatController {
         }
     }
 
-    @RequestMapping("/create")
+    @PostMapping("/create")
     public String createChat(RedirectAttributes redirectAttributes,
                              @RequestParam(value = USER_LOGIN, required = false) String userLogin) {
         if (userLogin != null) {
@@ -117,7 +117,7 @@ public class ChatController {
         }
     }
 
-    @RequestMapping(value = "/select/{userLogin}")
+    @PostMapping("/select/{userLogin}")
     public String selectChat(@PathVariable(USER_LOGIN) String userLogin, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin.replace("$", ""));
         return REDIRECT_CHAT_ALL;

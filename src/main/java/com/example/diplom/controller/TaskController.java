@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/task")
+@RequestMapping("/task")
 public class TaskController {
 
 

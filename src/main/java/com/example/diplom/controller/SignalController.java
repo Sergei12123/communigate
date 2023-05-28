@@ -13,7 +13,7 @@ import java.util.List;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/signal")
+@RequestMapping("/signal")
 public class SignalController {
 
     private final SignalService signalService;

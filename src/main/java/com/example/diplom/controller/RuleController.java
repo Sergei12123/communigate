@@ -13,7 +13,7 @@ import java.util.List;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/rule")
+@RequestMapping("/rule")
 public class RuleController {
 
     private final RuleService ruleService;

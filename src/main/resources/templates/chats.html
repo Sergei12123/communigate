@@ -259,17 +259,16 @@
                                 <br>
                                 <div class="container" style="width: 40vw; min-width: 500px">
                                     <div class="row">
-                                        <!--                                        <div class="form-outline mt-5 col-11">-->
                                         <textarea th:field="${chat_message.messageText}" th:name="messageText"
                                                   class="form-control col" placeholder="Напишите что-нибудь"
-                                                  style="height: calc(7vh+ 30px)"
+                                                  style="height: calc(7vh + 30px)"
                                                   required></textarea>
 
                                         <input type="hidden" th:field="${chat.userLogin}" th:name="userLogin">
                                         <br>
                                         <button type="submit" th:formaction="@{/chat/send}"
                                                 class="btn btn-info btn-rounded col-2 ms-2 p-0"
-                                                style="height: calc(7vh+ 30px);font-size: 1vw">
+                                                style="height: calc(7vh + 30px);font-size: 1vw">
                                             <strong>Отправить</strong>
                                         </button>
                                     </div>

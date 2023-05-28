@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/message")
+@RequestMapping("/message")
 public class MessageController {
 
     private final MessageService messageService;
@@ -72,7 +72,7 @@ public class MessageController {
         return REDIRECT_MESSAGE_ALL + (selectedMessages.length == 1 ? "?messageDeleted" : "?messagesDeleted");
     }
 
-    @RequestMapping("/all")
+    @GetMapping("/all")
     public String allMessages(Model model) {
         model.addAttribute(MESSAGES_FORM, MessagesForm.builder().messages(messageService.getInboxMessages()).build());
         return MESSAGES;

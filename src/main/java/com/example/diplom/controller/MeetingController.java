@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping(value = "/meeting")
+@RequestMapping("/meeting")
 public class MeetingController {
 
 
