@@ -36,7 +36,7 @@ public class VEventParser {
         }
 
         // UID
-        String uidPattern = "UID:(.+?)";
+        String uidPattern = "UID:(.+)";
         pattern = Pattern.compile(uidPattern);
         matcher = pattern.matcher(text);
         if (matcher.find()) {

@@ -2,6 +2,7 @@ package com.example.diplom.dto;
 
 import com.example.diplom.parser.VEventParser;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.jsoup.Jsoup;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Getter
 @Setter
 @Builder
@@ -195,7 +197,7 @@ public class MessageDTO {
                 stringBuilder.append(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.toString());
         }
         return stringBuilder.toString();
     }
