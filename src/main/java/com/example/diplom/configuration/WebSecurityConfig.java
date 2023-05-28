@@ -47,7 +47,6 @@ public class WebSecurityConfig {
         http
             .httpBasic()
             .and()
-            .csrf().disable()
             .sessionManagement()
             .invalidSessionUrl(LOGIN_PAGE)
             .and()
