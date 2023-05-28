@@ -25,7 +25,7 @@ public class TaskService {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    public ArrayList<TaskDTO> getAllTasks() {
+    public List<TaskDTO> getAllTasks() {
         ximssService.sendRequestToGetNothing(CalendarOpen.builder().calendar(FolderName.TASKS.getValue()).build());
         final List<Tasks> tasks = ximssService.sendRequestToGetList(FindTasks.builder()
             .calendar(FolderName.TASKS.getValue())
@@ -36,14 +36,14 @@ public class TaskService {
 
         final List<CalendarItem> calendarItems = tasks.stream()
             .filter(el -> el.getTasks() != null)
-            .flatMap((Tasks tasks1) -> tasks1.getTasks().stream())
+            .flatMap(tasks1 -> tasks1.getTasks().stream())
             .map(Tasks.Task::getUid)
             .distinct()
             .map(uid -> ximssService.sendRequestToGetObject(CalendarReadItem.builder().calendar(FolderName.TASKS.getValue()).uid(uid).build(), CalendarItem.class))
             .toList();
         ximssService.sendRequestToGetNothing(CalendarClose.builder().calendar(FolderName.TASKS.getValue()).build());
         return calendarItems.stream().map(TaskDTO::new)
-            .sorted(Comparator.comparing(TaskDTO::getPercentComplete))
+            .sorted(Comparator.comparing(TaskDTO::getPercentComplete).thenComparing(Comparator.comparing(TaskDTO::getTimeCreated).reversed()))
             .collect(Collectors.toCollection(ArrayList::new));
 
     }
@@ -82,7 +82,7 @@ public class TaskService {
         ximssService.sendRequestToGetNothing(
             CalendarPublish.builder()
                 .calendar(FolderName.TASKS.getValue())
-                .iCalendar(new ICalendar(new VCalendar(vtodo)))
+                .iCalendar(new ICalendar(VCalendar.builder().vTodo(vtodo).build()))
                 .build());
     }
 
@@ -101,7 +101,7 @@ public class TaskService {
         ximssService.sendRequestToGetNothing(
             CalendarPublish.builder()
                 .calendar(FolderName.TASKS.getValue())
-                .iCalendar(new ICalendar(new VCalendar(VTodo.builder().build())))
+                .iCalendar(new ICalendar(VCalendar.builder().vTodo(VTodo.builder().build()).build()))
                 .build());
         ximssService.sendRequestToGetNothing(CalendarClose.builder().calendar(FolderName.TASKS.getValue()).build());
     }

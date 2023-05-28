@@ -10,9 +10,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TasksForm {
+public class MeetingsForm {
 
     @Builder.Default
-    private List<TaskDTO> tasks = new ArrayList<>();
+    private List<MeetingDTO> meetings = new ArrayList<>();
 
 }

@@ -38,6 +38,9 @@
                    href="/task/all">Задачи</a>
                 <a class="btn btn-outline-primary mb-1"
                    style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
+                   href="/meeting/all">Встречи</a>
+                <a class="btn btn-outline-primary mb-1"
+                   style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
                    href="/rule/all">Почтовые правила</a>
                 <a class="btn btn-outline-primary mb-1"
                    style="width: 16vw; max-width: 175px;font-size: calc(0.5vw + 0.5vh);display: table-cell; vertical-align: middle;"
@@ -84,8 +87,7 @@
                     <button type="submit" value="deleteMessages" class="btn btn-danger me-2 fw-bold">Удалить</button>
                 </div>
 
-
-                <div class="card mt-3 mb-3" th:each="message, index : ${messagesForm.messages}">
+                <div class="card mt-3 mb-3" th:each="message, index : *{messages}">
                     <div class="form-check card-header ">
                         <input type="hidden" th:field="*{messages[__${index.index}__].uid}">
                         <input type="hidden" th:field="*{messages[__${index.index}__].text}">
@@ -154,12 +156,9 @@
                                 </th:block>
                             </th:block>
                         </div>
-                        <input type="hidden" th:field="*{messages[__${index.index}__].tasks}">
-
-
                         <div th:if="${message.tasks!=null && !message.tasks.isEmpty()}"
                              class="row justify-content-center">
-                            <div class="col-md-6 text-center mb-3 mt-3">
+                            <div class="col-md-6 text-center mb-3">
                                 <div class="badge bg-success text-wrap text-center" style="width: 60%;">
                                     <h5>Задачи</h5>
                                 </div>
@@ -223,7 +222,7 @@
                                         <button class="col btn btn-success fw-bold" style="width: 90px; height: 50px"
                                                 value="createTask"
                                                 th:if="${!task.fieldsDisabled}"
-                                                th:formaction="@{/message/createTask/{taskUid}(taskUid=${task.getTaskUid()})}">
+                                                th:formaction="@{/message/{messageUid}/createTask/{taskIndex}(taskIndex=${taskIndex.index}, messageUid=${message.uid})}">
                                             Создать
                                         </button>
 
@@ -231,10 +230,137 @@
                                                 style="width: 50px;height: 50px"
                                                 value="deleteTask"
                                                 th:if="${!task.fieldsDisabled}"
-                                                th:formaction="@{/message/deleteTask/{taskUid}(taskUid=${task.getTaskUid()})}">
+                                                th:formaction="@{/message/{messageUid}/deleteTask/{taskIndex}(taskIndex=${taskIndex.index}, messageUid=${message.uid})}">
                                             -
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div th:if="${message.meetings!=null && !message.meetings.isEmpty()}"
+                             class="row justify-content-center">
+                            <div class="col-md-6 text-center mb-3">
+                                <div class="badge bg-warning text-wrap text-black text-center" style="width: 60%;">
+                                    <h5>Встречи</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-3" th:each="meeting, meetingIndex : ${message.meetings}"
+                             style="min-width: 700px; max-width: 1000px; margin: auto">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].itemUid}">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].fieldsDisabled}">
+                            <input type="hidden"
+                                   th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].uid}">
+                            <div class="input-group form-check card-header">
+                                <div class="form-floating" style="width: calc(100% - 57px);">
+                                    <input type="text" class="form-control fw-bold fs-4"
+                                           placeholder="Enter login"
+                                           id="meetingText"
+                                           th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].meetingText}"
+                                           th:value="${meeting.meetingText}"
+                                           th:readonly="${meeting.fieldsDisabled}"
+                                           style="height: 50px"/>
+                                    <label class="mt-0 pt-2" for="meetingText">Тема встречи</label>
+                                </div>
+                            </div>
+                            <div class="card-body ps-5 pe-5">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="col mb-0" style="max-width: 220px">
+                                            <h5>Начало</h5>
+                                        </div>
+                                        <div class="col"
+                                             style="max-width: 195px">
+                                            <input th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].timeStart}"
+                                                   th:value="${#temporals.format(meeting.timeStart, 'yyyy-MM-dd''T''HH:mm')}"
+                                                   type="datetime-local" class="form-control"
+                                                   th:readonly="${meeting.fieldsDisabled}"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="col mb-0" style="max-width: 200px">
+                                            <h5>Окончание</h5>
+                                        </div>
+                                        <div class="col"
+                                             style="max-width: 195px">
+                                            <input th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].timeEnd}"
+                                                   th:value="${#temporals.format(meeting.timeEnd, 'yyyy-MM-dd''T''HH:mm')}"
+                                                   type="datetime-local"
+                                                   class="form-control"
+                                                   th:readonly="${meeting.fieldsDisabled}"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="col mb-0" style="max-width: 200px">
+                                            <h5>Организатор</h5>
+                                        </div>
+                                        <div class="col "
+                                             style="max-width: 195px"><p class="fs-5 fw-bold"
+                                                                         th:text="${meeting.organizer}">Имя
+                                            организатора</p>
+                                            <input type="hidden"
+                                                   th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].organizer}"/>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="col mb-0" style="max-width: 200px">
+                                            <h5>Участники</h5>
+                                        </div>
+                                        <div class="row ms-0">
+                                            <input type="hidden"
+                                                   th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].attendees}">
+                                            <input th:each="attendee, item : ${meeting.getAttendees()}"
+                                                   th:field="*{messages[__${index.index}__].meetings[__${meetingIndex.index}__].attendees[__${item.index}__]}"
+                                                   id="attendee"
+                                                   type="text"
+                                                   class="form-control col mt-1 ms-1"
+                                                   th:readonly="${meeting.fieldsDisabled}"
+                                                   style="min-width: 100px; max-width: 100px"
+                                            />
+
+
+                                            <div class="row">
+                                                <button class="h-100 btn btn-primary col mt-1 ms-1"
+                                                        style="max-width: 48px"
+                                                        value="addAttendee"
+                                                        th:if="${!meeting.fieldsDisabled}"
+                                                        th:formaction="@{/message/{messageUid}/addAttendee/{meetingIndex}(meetingIndex=${meetingIndex.index}, messageUid=${message.uid})}">
+                                                    +
+                                                </button>
+                                                <button class="h-100 btn btn-primary col mt-1 ms-1"
+                                                        style="max-width: 48px"
+                                                        value="removeAttendee"
+                                                        th:if="${!meeting.getAttendees().isEmpty() && !meeting.fieldsDisabled} "
+                                                        th:formaction="@{/message/{messageUid}/removeAttendee/{meetingIndex}(meetingIndex=${meetingIndex.index}, messageUid=${message.uid})}">
+                                                    -
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                                <div class="col">
+                                    <button class="col btn btn-warning fw-bold" style="width: 90px; height: 50px"
+                                            value="createMeeting"
+                                            th:if="${!meeting.fieldsDisabled}"
+                                            th:formaction="@{/message/{messageUid}/createMeeting/{meetingIndex}(meetingIndex=${meetingIndex.index}, messageUid=${message.uid})}">
+                                        Создать
+                                    </button>
+
+                                    <button class="col-1 ms-1 btn btn-danger fw-bold"
+                                            style="width: 50px;height: 50px"
+                                            value="deleteMeeting"
+                                            th:if="${!meeting.fieldsDisabled}"
+                                            th:formaction="@{/message/{messageUid}/deleteMeeting/{meetingIndex}(meetingIndex=${meetingIndex.index}, messageUid=${message.uid})}">
+                                        -
+                                    </button>
                                 </div>
 
 
@@ -256,42 +382,45 @@
                                 th:formaction="@{/message/createNewTask/{uid}(uid=${message.uid})}">
                             Создать задачу
                         </button>
-                        <button class="btn btn-warning fw-bold" type="button" th:if="${message.haveMeeting}"
-                                th:formaction="@{/message/createMeeting/{uid}(uid=${message.uid})}">
+                        <button class="btn btn-warning fw-bold" value="createNewMeeting" th:if="${message.haveMeeting}"
+                                th:formaction="@{/message/createNewMeeting/{uid}(uid=${message.uid})}">
                             Создать встречу
                         </button>
 
-                        <script>
-                            $(document).ready(function () {
-                                var createNewTaskButton = $("button[value='createNewTask']");
-                                var createTaskButton = $("button[value='createTask']");
-                                var deleteMessagesButton = $("button[value='deleteMessages']");
-                                var sendMessageButton = $("button[value='sendMessage']");
-                                var forwardMessageButton = $("button[value='forwardMessage']");
-                                var replyMessageButton = $("button[value='replyMessage']");
+                        <!--                        <script>-->
+                        <!--                            $(document).ready(function () {-->
+                        <!--                                var createNewTaskButton = $("button[value='createNewTask']");-->
+                        <!--                                var createTaskButton = $("button[value='createTask']");-->
+                        <!--                                var deleteMessagesButton = $("button[value='deleteMessages']");-->
+                        <!--                                var sendMessageButton = $("button[value='sendMessage']");-->
+                        <!--                                var forwardMessageButton = $("button[value='forwardMessage']");-->
+                        <!--                                var replyMessageButton = $("button[value='replyMessage']");-->
+                        <!--                                var deleteTaskButton = $("button[value='deleteTask']");-->
 
-
-                                var form = $("form");
-                                createNewTaskButton.on("click", function () {
-                                    form.find("input[id='taskText']").prop("required", true);
-                                });
-                                createTaskButton.on("click", function () {
-                                    form.find("input[id='taskText']").prop("required", true);
-                                });
-                                deleteMessagesButton.on("click", function () {
-                                    form.find("input[id='taskText']").prop("required", false);
-                                });
-                                sendMessageButton.on("click", function () {
-                                    form.find("input[id='taskText']").prop("required", false);
-                                });
-                                forwardMessageButton.on("click", function () {
-                                    form.find("input[id='taskText']").prop("required", false);
-                                });
-                                replyMessageButton.on("click", function () {
-                                    form.find("input[id='taskText']").prop("required", false);
-                                });
-                            });
-                        </script>
+                        <!--                                var form = $("form");-->
+                        <!--                                createNewTaskButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", true);-->
+                        <!--                                });-->
+                        <!--                                createTaskButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", true);-->
+                        <!--                                });-->
+                        <!--                                deleteMessagesButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", false);-->
+                        <!--                                });-->
+                        <!--                                sendMessageButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", false);-->
+                        <!--                                });-->
+                        <!--                                forwardMessageButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", false);-->
+                        <!--                                });-->
+                        <!--                                replyMessageButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", false);-->
+                        <!--                                });-->
+                        <!--                                deleteTaskButton.on("click", function () {-->
+                        <!--                                    form.find("input[id='taskText']").prop("required", false);-->
+                        <!--                                });-->
+                        <!--                            });-->
+                        <!--                        </script>-->
                     </div>
 
 

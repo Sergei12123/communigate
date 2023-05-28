@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -27,7 +28,7 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
     private String sessionTimeout;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated()
             && (request.getRequestURI().equals(request.getContextPath() + "/login")
@@ -42,7 +43,7 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
             List<Mailbox> mailboxes = ximssService.sendRequestToGetList(MailboxList.builder().build(), Mailbox.class);
             folderNames.removeAll(mailboxes.stream().map(Mailbox::getMailbox).filter(el -> FolderName.getFolderNames().contains(el)).toList());
             folderNames.forEach(folderName -> ximssService.sendRequestToGetNothing(MailboxCreate.builder().mailbox(folderName).build()));
-            if (!ximssService.sendRequestToGetList(FileList.builder().build(), FileInfo.class).stream().map(FileInfo::getDirectory).toList().contains("private/IM")) {
+            if (!ximssService.sendRequestToGetList(FileList.builder().build(), FileInfo.class).stream().map(FileInfo::getFileName).toList().contains("private")) {
                 ximssService.sendRequestToGetNothing(FileDirCreate.builder().fileName("private/IM").build());
             }
 

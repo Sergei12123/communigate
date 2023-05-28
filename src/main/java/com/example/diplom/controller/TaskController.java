@@ -4,12 +4,14 @@ import com.example.diplom.dto.TaskDTO;
 import com.example.diplom.dto.TasksForm;
 import com.example.diplom.service.TaskService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @AllArgsConstructor
 @RequestMapping(value = "/task")
@@ -26,47 +28,36 @@ public class TaskController {
 
 
     @GetMapping("/all")
-    private String rulesPage(Model model) {
+    public String rulesPage(Model model) {
         model.addAttribute(TASKS_FORM, TasksForm.builder().tasks(taskService.getAllTasks()).build());
         return TASKS;
     }
 
-    @GetMapping("/new")
-    private String newRule() {
-        return TASKS;
-    }
-
-
     @PostMapping("/all")
     public String processTaskForm(@ModelAttribute(TASKS_FORM) TasksForm tasksForm, @RequestParam("action") String action) {
         switch (action) {
-            case "save":
-                taskService.updateTasks(tasksForm.getTasks());
-                break;
-            case "delete":
+            case "save" -> taskService.updateTasks(tasksForm.getTasks());
+            case "delete" -> {
                 taskService.deleteTasks(tasksForm.getTasks().stream().filter(TaskDTO::isSelected).toList());
                 tasksForm.getTasks().removeAll(tasksForm.getTasks().stream().filter(TaskDTO::isSelected).toList());
-                break;
-            case "new":
+            }
+            case "new" -> {
                 taskService.createTask();
                 tasksForm.setTasks(taskService.getAllTasks());
-                break;
+            }
+            default -> log.warn("You are don't define this action yet");
         }
         return REDIRECT_TASK_ALL;
     }
 
     @PostMapping("/done/{uid}")
     public String doneTask(@PathVariable("uid") Long uid, @ModelAttribute(TASKS_FORM) TasksForm tasksForm) {
-        taskService.updateTask(
-            tasksForm.getTasks().stream()
-                .filter(el -> el.getUid().equals(uid))
-                .peek(el -> el.setPercentComplete(100))
-                .peek(el -> {
-                    if (el.getTaskText() == null || el.getTaskText().isEmpty())
-                        el.setTaskText(taskService.getTaskByUid(uid).getTaskText());
-                })
-                .findAny()
-                .orElse(taskService.getTaskByUid(uid)));
+        TaskDTO taskDTO = tasksForm.getTasks().stream().filter(el -> el.getUid().equals(uid)).findAny().orElse(taskService.getTaskByUid(uid));
+        taskDTO.setPercentComplete(100);
+        if (taskDTO.getTaskText() == null || taskDTO.getTaskText().isEmpty()) {
+            taskDTO.setTaskText(taskService.getTaskByUid(uid).getTaskText());
+        }
+        taskService.updateTask(taskDTO);
         return REDIRECT_TASK_ALL;
     }
 
