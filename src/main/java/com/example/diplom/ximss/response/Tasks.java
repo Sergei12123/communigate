@@ -7,14 +7,12 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
@@ -40,7 +38,7 @@ public class Tasks extends BaseXIMSSResponse {
 
     @JacksonXmlProperty(localName = "task")
     @JacksonXmlElementWrapper(useWrapping = false)
-    private List<Task> tasks;
+    private List<Task> taskList;
 
     @JacksonXmlText
     private String text = "";

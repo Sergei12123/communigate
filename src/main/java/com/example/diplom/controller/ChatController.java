@@ -12,8 +12,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +22,7 @@ import static com.example.diplom.dto.ChatDTO.getShortLogin;
 @RequestMapping(value = "/chat")
 public class ChatController {
 
+    public static final String USER_LOGIN = "userLogin";
     private final ChatService chatService;
 
     private final XimssService ximssService;
@@ -44,12 +43,12 @@ public class ChatController {
     }
 
     @RequestMapping("/all")
-    private String allChats(Model model) {
+    public String allChats(Model model) {
         List<ChatDTO> allChats = chatService.getAllChats();
         if (allChats == null) allChats = new ArrayList<>();
         model.addAttribute(CHATS, allChats);
 
-        final Object userLogin = model.getAttribute("userLogin");
+        final Object userLogin = model.getAttribute(USER_LOGIN);
         final ChatDTO chatDTO;
         if (userLogin != null) {
             chatDTO = allChats.stream().filter(chat -> chat.getUserLogin().equals(userLogin.toString())).findFirst()
@@ -63,7 +62,7 @@ public class ChatController {
                 allChats.add(chatDTO);
             }
         } else {
-            chatDTO = allChats.size() > 0 ? allChats.get(0) : ChatDTO.builder().build();
+            chatDTO = !allChats.isEmpty() ? allChats.get(0) : ChatDTO.builder().build();
         }
         chatDTO.setCurrent(true);
 
@@ -74,22 +73,22 @@ public class ChatController {
     }
 
     @PostMapping("/send")
-    private String sendMessage(@RequestParam(value = "messageText", required = false) String messageText,
-                               @RequestParam(value = "userLogin", required = false) String userLogin,
-                               RedirectAttributes redirectAttributes) {
+    public String sendMessage(@RequestParam(value = "messageText", required = false) String messageText,
+                              @RequestParam(value = USER_LOGIN, required = false) String userLogin,
+                              RedirectAttributes redirectAttributes) {
         if (messageText != null && userLogin != null) {
             chatService.sendMessage(messageText, userLogin);
-            redirectAttributes.addFlashAttribute("userLogin", userLogin);
+            redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin);
         }
         return REDIRECT_CHAT_ALL;
     }
 
     @PostMapping("/delete")
-    private String deleteSignals(@RequestParam(value = "selectedChats", required = false) List<String> selectedChats,
-                                 @RequestParam(value = "userLogin", required = false) String userLogin,
-                                 RedirectAttributes redirectAttributes) {
+    public String deleteSignals(@RequestParam(value = "selectedChats", required = false) List<String> selectedChats,
+                                @RequestParam(value = USER_LOGIN, required = false) String userLogin,
+                                RedirectAttributes redirectAttributes) {
         if (selectedChats == null) {
-            redirectAttributes.addFlashAttribute("userLogin", userLogin);
+            redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin);
             return REDIRECT_CHAT_ALL;
         }
         chatService.deleteChats(selectedChats);
@@ -97,22 +96,21 @@ public class ChatController {
     }
 
     @RequestMapping("/new")
-    private String newChat(Model model, RedirectAttributes redirectAttributes,
-                           @RequestParam(value = "userLogin", required = false) String userLogin,
-                           @RequestParam(value = "new", required = false) boolean isNew) {
+    public String newChat(Model model, RedirectAttributes redirectAttributes,
+                          @RequestParam(value = USER_LOGIN, required = false) String userLogin) {
         if (model.getAttribute("new") == null) {
             return REDIRECT_CHAT_ALL + "?new";
         } else {
-            redirectAttributes.addFlashAttribute("userLogin", userLogin);
+            redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin);
             return REDIRECT_CHAT_ALL;
         }
     }
 
     @RequestMapping("/create")
-    private String createChat(RedirectAttributes redirectAttributes,
-                              @RequestParam(value = "userLogin", required = false) String userLogin) {
+    public String createChat(RedirectAttributes redirectAttributes,
+                             @RequestParam(value = USER_LOGIN, required = false) String userLogin) {
         if (userLogin != null) {
-            redirectAttributes.addFlashAttribute("userLogin", userLogin.split(",")[0]);
+            redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin.split(",")[0]);
             return REDIRECT_CHAT_ALL;
         } else {
             return REDIRECT_CHAT_ALL + "?new";
@@ -120,8 +118,8 @@ public class ChatController {
     }
 
     @RequestMapping(value = "/select/{userLogin}")
-    public String selectChat(@PathVariable("userLogin") String userLogin, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("userLogin", userLogin.replace("$", ""));
+    public String selectChat(@PathVariable(USER_LOGIN) String userLogin, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin.replace("$", ""));
         return REDIRECT_CHAT_ALL;
     }
 
@@ -135,8 +133,6 @@ public class ChatController {
             ChatDTO chatByLogin = chatService.getChatByLogin(login);
             chatByLogin.setCurrent(true);
             allChats.stream().filter(el -> el.getUserLogin().equals(chatByLogin.getUserLogin())).forEach(chat -> chat.setCurrent(true));
-            String input = objectFromXML.getGmtTime().trim();
-            LocalDateTime dateTime = LocalDateTime.parse(input, DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"));
             model.addAttribute("chatMessage", ChatMessage.builder()
                 .messageText(objectFromXML.getMessageText().replace("*This message was transferred with a trial version of CommuniGate(r) Pro*", ""))
                 .userLogin(login)

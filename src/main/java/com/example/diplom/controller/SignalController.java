@@ -28,13 +28,13 @@ public class SignalController {
 
 
     @GetMapping("/all")
-    private String signalsPage(Model model) {
+    public String signalsPage(Model model) {
         model.addAttribute(SIGNALS, signalService.getAllRulesForCurrentUser());
         return SIGNALS;
     }
 
     @GetMapping("/new")
-    private String newSignal(Model model) {
+    public String newSignal(Model model) {
         if (model.getAttribute(SIGNAL) == null) {
             final SignalDTO dto = SignalDTO.builder().build();
             dto.getConditionList().add(Condition.builder().build());
@@ -56,7 +56,7 @@ public class SignalController {
     @PostMapping(value = "/removeCondition")
     public String removeCondition(@ModelAttribute(SIGNAL) SignalDTO dto) {
         dto.getConditionList().remove(dto.getConditionList().size() - 1);
-        if (dto.getConditionList().size() == 0) {
+        if (dto.getConditionList().isEmpty()) {
             dto.setRemoveConditionAllow(false);
         }
         return NEW_SIGNAL;
@@ -72,7 +72,7 @@ public class SignalController {
     @PostMapping(value = "/removeAction")
     public String removeAction(@ModelAttribute(SIGNAL) SignalDTO dto) {
         dto.getActionList().remove(dto.getActionList().size() - 1);
-        if (dto.getActionList().size() == 0) {
+        if (dto.getActionList().isEmpty()) {
             dto.setRemoveActionAllow(false);
         }
         return NEW_SIGNAL;
@@ -90,15 +90,15 @@ public class SignalController {
     public String editSignal(@PathVariable("name") String signalName, Model model) {
         final SignalDTO dto = signalService.getRuleWitnName(signalName);
         dto.setEdit(true);
-        dto.setRemoveConditionAllow(dto.getConditionList().size() > 0);
-        dto.setRemoveActionAllow(dto.getActionList().size() > 0);
+        dto.setRemoveConditionAllow(!dto.getConditionList().isEmpty());
+        dto.setRemoveActionAllow(!dto.getActionList().isEmpty());
 
         model.addAttribute(SIGNAL, dto);
         return NEW_SIGNAL;
     }
 
     @PostMapping("/delete")
-    private String deleteSignals(@RequestParam(value = "selectedSignals", required = false) List<String> selectedSignals) {
+    public String deleteSignals(@RequestParam(value = "selectedSignals", required = false) List<String> selectedSignals) {
         if (selectedSignals == null)
             return REDIRECT_SIGNAL_ALL;
         signalService.deleteRules(selectedSignals);

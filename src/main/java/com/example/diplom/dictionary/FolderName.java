@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -19,7 +20,7 @@ public enum FolderName {
         this.value = value;
     }
 
-    public static ArrayList<String> getFolderNames() {
+    public static List<String> getFolderNames() {
         return Arrays.stream(FolderName.values()).map(FolderName::getValue).collect(toCollection(ArrayList::new));
     }
 

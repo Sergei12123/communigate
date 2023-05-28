@@ -3,13 +3,9 @@ package com.example.diplom.manager;
 import com.example.diplom.annotation.PreLoginRequest;
 import com.example.diplom.service.UserCache;
 import com.example.diplom.ximss.BaseXIMSSRequest;
-import com.example.diplom.ximss.response.ReadIm;
 import com.example.diplom.ximss.response.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
@@ -22,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -37,9 +32,9 @@ public class XimssService {
 
     private final SessionService sessionService;
 
-    static private final String DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
+    private static final String DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
 
-    static private final String DEFAULT_SESSION_SYNC_REQUEST_URL = "http://localhost:8100/Session/%s/sync";
+    private static final String DEFAULT_SESSION_SYNC_REQUEST_URL = "http://localhost:8100/Session/%s/sync";
 
     public static final String GET_MESSAGE_URL = "http://localhost:8100/Session/%s/MIME/INBOX/%d-P.txt";
 
@@ -67,7 +62,7 @@ public class XimssService {
             }
             log.info(response.toString());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
         return true;
     }
@@ -78,12 +73,12 @@ public class XimssService {
             getRequestWithBody(requestXimssEntity),
             String.class
         );
-        if (!checkResponse(requestXimssEntity, responseXml)) return null;
+        if (!checkResponse(requestXimssEntity, responseXml)) return new ArrayList<>();
         if (responseXml != null) {
             try {
                 responseXml = responseXml.replace(xmlMapper.writeValueAsString(xmlMapper.treeToValue(xmlMapper.readTree(responseXml).get(Response.class.getSimpleName().toLowerCase()), Response.class)), "");
             } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                throw new IllegalArgumentException(e);
             }
         }
         return responseXml == null || responseXml.startsWith("<XIMSS></XIMSS>") ? new ArrayList<>() : getListFromXML(responseXml, responseClass);
@@ -98,44 +93,11 @@ public class XimssService {
 
     public <T> List<T> getListFromXML(final String xmlString, final Class<T> returnType) {
         try {
-            try {
-                return (List<T>) xmlMapper.readerFor(returnType).readValues(xmlString).readAll();
-            } catch (IOException e) {
-                final List<T> resultList = new ArrayList<>();
-                String xmlStringTemp = String.valueOf(xmlString);
-                final String localName = returnType.getAnnotation(JacksonXmlRootElement.class).localName();
-                int xmlLastLength;
-                do {
-                    xmlLastLength = xmlStringTemp.length();
-                    final JsonNode jsonNode = xmlMapper.readTree(xmlStringTemp).get(localName);
-                    if (jsonNode != null) {
-                        try {
-                            resultList.add(0, xmlMapper.treeToValue(jsonNode, returnType));
-                            if (returnType == ReadIm.class) {
-                                if (Objects.equals(jsonNode.get("composing"), NullNode.instance))
-                                    ((ReadIm) resultList.get(0)).setComposing("");
-                                if (Objects.equals(jsonNode.get("paused"), NullNode.instance))
-                                    ((ReadIm) resultList.get(0)).setPaused("");
-                                if (Objects.equals(jsonNode.get("gone"), NullNode.instance))
-                                    ((ReadIm) resultList.get(0)).setGone("");
-                                if (Objects.equals(jsonNode.get("body"), NullNode.instance))
-                                    ((ReadIm) resultList.get(0)).setBody("");
-                            }
-                        } catch (Exception e1) {
-                            try {
-                                resultList.add(0, xmlMapper.readValue(unwrapXimss(xmlString), returnType));
-                                return resultList;
-                            } catch (Exception e2) {
-                                System.out.println(e2);
-                            }
-                        }
-                        xmlStringTemp = xmlStringTemp.replace(xmlMapper.writeValueAsString(resultList.get(0)), "");
-                    }
-                } while (xmlLastLength > xmlStringTemp.length());
-                return resultList;
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return (List<T>) xmlMapper.readerFor(returnType).readValues(xmlString).readAll();
+        } catch (IOException e) {
+            log.error("Can't parse XIMSS to Object.\n XIMSS:");
+            log.error(xmlString);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -149,15 +111,12 @@ public class XimssService {
         return "<XIMSS>" + xml + "</XIMSS>";
     }
 
-    private String unwrapXimss(final String xml) {
-        return xml.replace("<XIMSS>", "").replace("</XIMSS>", "");
-    }
-
     String getXML(final Object object) {
         try {
             return wrapInXimssTag(xmlMapper.writeValueAsString(object));
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error("Can't write Object to XML");
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -165,7 +124,7 @@ public class XimssService {
         String res = getXML(requestXimssEntity);
         HttpHeaders headers = new HttpHeaders();
         headers.setCacheControl(CacheControl.noCache());
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.ALL));
         headers.setConnection("keep-alive");
         return new HttpEntity<>(res, headers);

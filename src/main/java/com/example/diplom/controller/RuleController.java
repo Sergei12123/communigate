@@ -27,13 +27,13 @@ public class RuleController {
     private static final String REDIRECT_RULE_ALL = "redirect:/rule/all";
 
     @GetMapping("/all")
-    private String rulesPage(Model model) {
+    public String rulesPage(Model model) {
         model.addAttribute(RULES, ruleService.getAllRulesForCurrentUser());
         return RULES;
     }
 
     @GetMapping("/new")
-    private String newRule(Model model) {
+    public String newRule(Model model) {
         if (model.getAttribute(RULE) == null) {
             final RuleDTO dto = RuleDTO.builder().build();
             dto.getConditionList().add(Condition.builder().build());
@@ -55,7 +55,7 @@ public class RuleController {
     @PostMapping(value = "/removeCondition")
     public String removeCondition(@ModelAttribute(RULE) RuleDTO dto) {
         dto.getConditionList().remove(dto.getConditionList().size() - 1);
-        if (dto.getConditionList().size() == 0) {
+        if (dto.getConditionList().isEmpty()) {
             dto.setRemoveConditionAllow(false);
         }
         return NEW_RULE;
@@ -71,7 +71,7 @@ public class RuleController {
     @PostMapping(value = "/removeAction")
     public String removeAction(@ModelAttribute(RULE) RuleDTO dto) {
         dto.getActionList().remove(dto.getActionList().size() - 1);
-        if (dto.getActionList().size() == 0) {
+        if (dto.getActionList().isEmpty()) {
             dto.setRemoveActionAllow(false);
         }
         return NEW_RULE;
@@ -89,14 +89,14 @@ public class RuleController {
     public String editRule(@PathVariable("name") String ruleName, Model model) {
         final RuleDTO dto = ruleService.getRuleWitnName(ruleName);
         dto.setEdit(true);
-        dto.setRemoveConditionAllow(dto.getConditionList().size() > 0);
-        dto.setRemoveActionAllow(dto.getActionList().size() > 0);
+        dto.setRemoveConditionAllow(!dto.getConditionList().isEmpty());
+        dto.setRemoveActionAllow(!dto.getActionList().isEmpty());
         model.addAttribute(RULE, dto);
         return NEW_RULE;
     }
 
     @PostMapping("/delete")
-    private String deleteRules(@RequestParam(value = "selectedRules", required = false) List<String> selectedRules) {
+    public String deleteRules(@RequestParam(value = "selectedRules", required = false) List<String> selectedRules) {
         if (selectedRules == null)
             return REDIRECT_RULE_ALL;
         ruleService.deleteRules(selectedRules);

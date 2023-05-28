@@ -41,8 +41,6 @@ public class WebSecurityConfig {
 
 
     public static final String LOGIN_PAGE = "/auth/login";
-    public static final String REGISTRATION_PAGE = "/registration";
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -57,15 +55,14 @@ public class WebSecurityConfig {
             .requestMatchers("/auth/**").requiresSecure()
             .anyRequest().requiresInsecure()
             .and()
-            .authorizeHttpRequests((requests) -> requests
+            .authorizeHttpRequests(requests -> requests
                 .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(
-                (form) -> form
-                    .loginPage("/auth")
-                    .loginProcessingUrl("/auth/makeLogin")
-                    .permitAll()
+            .formLogin(form -> form
+                .loginPage("/auth")
+                .loginProcessingUrl("/auth/makeLogin")
+                .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/makeLogout")

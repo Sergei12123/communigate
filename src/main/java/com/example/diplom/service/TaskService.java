@@ -35,8 +35,8 @@ public class TaskService {
             .build(), Tasks.class);
 
         final List<CalendarItem> calendarItems = tasks.stream()
-            .filter(el -> el.getTasks() != null)
-            .flatMap(tasks1 -> tasks1.getTasks().stream())
+            .filter(el -> el.getTaskList() != null)
+            .flatMap(tasks1 -> tasks1.getTaskList().stream())
             .map(Tasks.Task::getUid)
             .distinct()
             .map(uid -> ximssService.sendRequestToGetObject(CalendarReadItem.builder().calendar(FolderName.TASKS.getValue()).uid(uid).build(), CalendarItem.class))

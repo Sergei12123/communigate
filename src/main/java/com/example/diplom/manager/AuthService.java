@@ -1,7 +1,6 @@
 package com.example.diplom.manager;
 
 import com.example.diplom.dto.UserDTO;
-import com.example.diplom.ximss.BaseXIMSSRequest;
 import com.example.diplom.ximss.request.Login;
 import com.example.diplom.ximss.request.Signup;
 import com.example.diplom.ximss.response.Response;
@@ -20,12 +19,14 @@ import java.util.List;
 public class AuthService {
 
 
+    public static final String KEEP_ALIVE = "keep-alive";
+
     private final RestTemplate restTemplate;
 
 
     private final XimssService ximssService;
 
-    static private final String DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
+    private static final String DEFAULT_URL_FOR_PRE_LOGIN_OPERATIONS = "http://localhost:8100/ximsslogin/";
 
     public Session makeBasicLogin(final Login loginEntity) {
         HttpHeaders headers = new HttpHeaders();
@@ -34,12 +35,11 @@ public class AuthService {
         String authHeader = "Basic " + new String(encodedAuth);
         headers.set("Authorization", authHeader);
         headers.setAccept(List.of(MediaType.ALL));
-        headers.setConnection("keep-alive");
+        headers.setConnection(KEEP_ALIVE);
         headers.setCacheControl(CacheControl.noCache());
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;
         try {
             response = restTemplate.exchange(
@@ -67,7 +67,7 @@ public class AuthService {
         headers.setCacheControl(CacheControl.noCache());
         headers.setContentType(MediaType.APPLICATION_XML);
         headers.setAccept(List.of(MediaType.ALL));
-        headers.setConnection("keep-alive");
+        headers.setConnection(KEEP_ALIVE);
         HttpEntity<String> stringHttpEntity = new HttpEntity<>(res, headers);
         final String response = restTemplate.postForObject(
             ximssService.getNecessaryUrl(signup),
@@ -76,16 +76,6 @@ public class AuthService {
         );
         List<Response> listFromXML = ximssService.getListFromXML(response, Response.class);
         return listFromXML.isEmpty() ? null : listFromXML.get(0);
-    }
-
-    private <T extends BaseXIMSSRequest> HttpEntity<String> getRequestWithBody(final T requestXimssEntity) {
-        String res = ximssService.getXML(requestXimssEntity);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setCacheControl(CacheControl.noCache());
-        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        headers.setAccept(List.of(MediaType.ALL));
-        headers.setConnection("keep-alive");
-        return new HttpEntity<>(res, headers);
     }
 
 }

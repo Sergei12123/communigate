@@ -13,6 +13,7 @@ import com.example.diplom.ximss.response.FolderReport;
 import com.example.diplom.ximss.response.Mime;
 import com.example.diplom.ximss.response_request.Email;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageService {
@@ -69,10 +71,14 @@ public class MessageService {
                     messageDTO.setHaveMeeting(true);
                     messageDTO.setHaveTask(true);
                 }
+                default -> {
+                    messageDTO.setHaveMeeting(false);
+                    messageDTO.setHaveTask(false);
+                }
             }
             return messageDTO;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -123,7 +129,7 @@ public class MessageService {
         try {
             return new AbstractMap.SimpleEntry<>(uid, new MimeMessageParser(new MimeMessage(null, new ByteArrayInputStream(ximssService.getMessageById(uid).getBytes(StandardCharsets.UTF_8)))));
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException(e);
         }
     }
 }

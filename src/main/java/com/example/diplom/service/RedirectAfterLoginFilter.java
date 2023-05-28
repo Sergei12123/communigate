@@ -41,7 +41,7 @@ public class RedirectAfterLoginFilter extends OncePerRequestFilter {
             ximssService.sendRequestToGetNothing(SignalBind.builder().build());
             List<String> folderNames = FolderName.getFolderNames();
             List<Mailbox> mailboxes = ximssService.sendRequestToGetList(MailboxList.builder().build(), Mailbox.class);
-            folderNames.removeAll(mailboxes.stream().map(Mailbox::getMailbox).filter(el -> FolderName.getFolderNames().contains(el)).toList());
+            folderNames.removeAll(mailboxes.stream().map(Mailbox::getMailboxName).filter(el -> FolderName.getFolderNames().contains(el)).toList());
             folderNames.forEach(folderName -> ximssService.sendRequestToGetNothing(MailboxCreate.builder().mailbox(folderName).build()));
             if (!ximssService.sendRequestToGetList(FileList.builder().build(), FileInfo.class).stream().map(FileInfo::getFileName).toList().contains("private")) {
                 ximssService.sendRequestToGetNothing(FileDirCreate.builder().fileName("private/IM").build());

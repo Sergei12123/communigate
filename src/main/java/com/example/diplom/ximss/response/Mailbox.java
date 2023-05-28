@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @JacksonXmlRootElement(localName = "mailbox")
 public class Mailbox extends BaseXIMSSResponse {
 
-    @JacksonXmlProperty(isAttribute = true)
-    private String mailbox;
+    @JacksonXmlProperty(isAttribute = true, localName = "mailbox")
+    private String mailboxName;
 
     @JacksonXmlProperty(isAttribute = true, localName = "BoxSeq")
     private String boxSeq;

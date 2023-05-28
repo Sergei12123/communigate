@@ -11,4 +11,8 @@ public class MyEncoder {
     public static String decodeValue(final String encryptedValue) {
         return new String(Base64.getDecoder().decode(encryptedValue));
     }
+
+    private MyEncoder() {
+        throw new IllegalStateException("Utility class");
+    }
 }

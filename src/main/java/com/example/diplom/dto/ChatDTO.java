@@ -29,13 +29,12 @@ public class ChatDTO {
     private List<ChatMessage> chatMessages;
 
     public ChatMessage getLastMessage() {
-        return chatMessages == null || chatMessages.size() == 0 ? ChatMessage.builder().build() : chatMessages.get(chatMessages.size() - 1);
+        return chatMessages == null || chatMessages.isEmpty() ? ChatMessage.builder().build() : chatMessages.get(chatMessages.size() - 1);
     }
 
     public ChatDTO(final FileData fileData, final String currentUserLogin) {
-        System.out.println();
         this.userLogin = fileData.getFileName().replace("private/IM/", "").replace(".log", "").replace("@ivanov.ru", "");
-        this.chatMessages = Arrays.stream(fileData.getFileData().split("\n"))
+        this.chatMessages = Arrays.stream(fileData.getData().split("\n"))
             .map(el -> ChatMessage.builder()
                 .messageText(
                     el.substring(el.indexOf(el.charAt(16)) + 1)
@@ -46,19 +45,19 @@ public class ChatDTO {
                 .userLogin(el.charAt(16) == '<' ? userLogin : currentUserLogin)
                 .dateTime(LocalDateTime.parse(el.substring(0, 16).trim(), DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")))
                 .build())
-            .peek(chatMessage -> {
-                if (chatMessage.getMessageText().startsWith("\""))
-                    chatMessage.setMessageText(chatMessage.getMessageText().replaceFirst("\"", ""));
-                if (chatMessage.getMessageText().endsWith("\""))
-                    chatMessage.setMessageText(chatMessage.getMessageText().substring(0, chatMessage.getMessageText().length() - 1));
-                chatMessage.setMessageText(chatMessage.getMessageText().trim());
-                if (chatMessage.getMessageText().length() > 50) {
-                    chatMessage.setShortMessageText(chatMessage.getMessageText().substring(0, 50) + "...");
-                } else {
-                    chatMessage.setShortMessageText(chatMessage.getMessageText());
-                }
-            })
             .toList();
+        chatMessages.forEach(chatMessage -> {
+            if (chatMessage.getMessageText().startsWith("\""))
+                chatMessage.setMessageText(chatMessage.getMessageText().replaceFirst("\"", ""));
+            if (chatMessage.getMessageText().endsWith("\""))
+                chatMessage.setMessageText(chatMessage.getMessageText().substring(0, chatMessage.getMessageText().length() - 1));
+            chatMessage.setMessageText(chatMessage.getMessageText().trim());
+            if (chatMessage.getMessageText().length() > 50) {
+                chatMessage.setShortMessageText(chatMessage.getMessageText().substring(0, 50) + "...");
+            } else {
+                chatMessage.setShortMessageText(chatMessage.getMessageText());
+            }
+        });
         this.shortUserLogin = getShortLogin(userLogin);
         this.shortCurrentUserLogin = getShortLogin(currentUserLogin);
     }

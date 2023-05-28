@@ -32,7 +32,7 @@ public class FileData extends BaseXIMSSResponse {
     private String timeModified;
 
     @JacksonXmlText
-    private String fileData;
+    private String data;
 
 
 }
