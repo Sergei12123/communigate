@@ -1,3 +1,7 @@
+app:
+  classifier:
+    trainAlways: true
+    storeModelFile: true
 server:
   ssl:
     keyAlias: tomcat

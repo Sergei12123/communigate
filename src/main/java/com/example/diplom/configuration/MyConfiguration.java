@@ -1,6 +1,8 @@
 package com.example.diplom.configuration;
 
 import com.aliasi.classify.LMClassifier;
+import com.aliasi.lm.NGramProcessLM;
+import com.aliasi.stats.MultivariateEstimator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -22,11 +24,9 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.time.Duration;
 
-import static com.example.diplom.text_categorize.TextCategorization.loadClassifierFromFile;
-import static com.example.diplom.text_categorize.TextCategorization.trainCategorizator;
+import static com.example.diplom.text_categorize.TextCategorization.*;
 
 @Configuration
 @EnableRedisRepositories
@@ -34,6 +34,12 @@ public class MyConfiguration {
 
     @Value("${server.servlet.session.timeout}")
     private String sessionTimeout;
+
+    @Value("${app.classifier.trainAlways}")
+    private boolean trainAlways;
+
+    @Value("${app.classifier.storeModelFile}")
+    private boolean storeModelFile;
 
     @Bean
     public XmlMapper xmlMapper() {
@@ -82,12 +88,15 @@ public class MyConfiguration {
     }
 
     @Bean
-    public LMClassifier textCategorizer() throws IOException, ClassNotFoundException {
-        try {
-            return loadClassifierFromFile("src/main/resources/classifier.ser");
-        } catch (Exception e) {
-            trainCategorizator();
-            return loadClassifierFromFile("src/main/resources/classifier.ser");
+    public LMClassifier<NGramProcessLM, MultivariateEstimator> textCategorizer() {
+        if (trainAlways) {
+            return trainCategorizator(storeModelFile);
+        } else {
+            try {
+                return loadClassifierFromFile(CLASSIFIER_SER_PATH);
+            } catch (Exception e) {
+                return trainCategorizator(storeModelFile);
+            }
         }
     }
 
