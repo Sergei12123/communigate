@@ -60,7 +60,7 @@ public class XimssService {
                 log.error(response.toString());
                 return false;
             }
-            log.info(response.toString());
+            log.info(requestXimssEntity.getClass().getSimpleName() + " - " + response);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException(e);
         }

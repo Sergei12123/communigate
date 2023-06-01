@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,8 +34,8 @@ public class MeetingService {
         ximssService.sendRequestToGetNothing(CalendarOpen.builder().calendar(FolderName.MEETINGS.getValue()).build());
         final List<Meetings> meetings = ximssService.sendRequestToGetList(FindEvents.builder()
             .calendar(FolderName.MEETINGS.getValue())
-            .timeFrom(LocalDate.now().withDayOfMonth(1).format(formatter))
-            .timeTill(LocalDate.now().withDayOfMonth(LocalDate.now().getMonth().length(LocalDate.now().isLeapYear())).format(formatter))
+            .timeFrom(LocalDate.now().minusDays(30).format(formatter))
+            .timeTill(LocalDate.now().plusDays(30).format(formatter))
             .build(), Meetings.class);
 
         final List<CalendarItem> calendarItems = meetings.stream()
@@ -97,7 +98,10 @@ public class MeetingService {
         ximssService.sendRequestToGetNothing(
             CalendarPublish.builder()
                 .calendar(FolderName.MEETINGS.getValue())
-                .iCalendar(new ICalendar(VCalendar.builder().vEvent(VEvent.builder().organizer(Organizer.builder().commonName(userCache.getCurrentUserName() + "@ivanov.ru").build()).build()).build()))
+                .iCalendar(new ICalendar(VCalendar.builder().vEvent(VEvent.builder()
+                    .organizer(Organizer.builder().commonName(userCache.getCurrentUserName() + "@ivanov.ru").build())
+                    .dtstart(LocalDateTime.now().plusMinutes(15))
+                    .build()).build()))
                 .build());
         ximssService.sendRequestToGetNothing(CalendarClose.builder().calendar(FolderName.MEETINGS.getValue()).build());
     }

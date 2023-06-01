@@ -106,17 +106,18 @@
                         <div class="row position-relative">
                             <div class="col-4">
                                 <div class="btn-group mb-1">
-                                    <button type="submit" class="btn btn-danger me-2">Удалить</button>
+                                    <button type="submit" value="delete" class="btn btn-danger me-2">Удалить</button>
                                     <a href="/chat/new" class="btn btn-primary me-2"
                                        th:if="${param.new==null}">Новый чат</a>
 
                                 </div>
                                 <h5 class="form-label" th:if="${param.new}">Получатель</h5>
                                 <div th:if="${param.new}" class="input-group mb-3">
-                                    <input type="text" class="form-control" aria-describedby="basic-addon2"
-                                           th:name="userLogin" required/>
+                                    <input type="text" id="userLoginText" class="form-control"
+                                           aria-describedby="basic-addon2"
+                                           th:name="userLogin"/>
                                     <span class="input-group-text" id="basic-addon2">@ivanov.ru</span>
-                                    <button type="submit" th:formaction="@{/chat/create}"
+                                    <button type="submit" value="create" th:formaction="@{/chat/create}"
                                             class="btn btn-primary me-2 ms-2"
                                             th:if="${param.new!=null}">Создать
                                     </button>
@@ -248,7 +249,34 @@
                                         var chatMessages = document.getElementById('chat-messages');
                                         chatMessages.scrollTop = chatMessages.scrollHeight;
                                         intervalId = setTimeout(loadChatMessages, 0);
+
+                                        var deleteButton = $("button[value='delete']");
+                                        var createButton = $("button[value='create']");
+                                        var sendButton = $("button[value='send']");
+
+
+                                        var form = $("form");
+
+
+                                        deleteButton.on("click", function () {
+                                            form.find("textarea[id='messageText']").prop("required", false);
+                                            form.find("input[id='userLoginText']").prop("required", false);
+
+                                        });
+
+                                        createButton.on("click", function () {
+                                            form.find("textarea[id='messageText']").prop("required", false);
+                                            form.find("input[id='userLoginText']").prop("required", true);
+
+                                        });
+
+                                        sendButton.on("click", function () {
+                                            form.find("textarea[id='messageText']").prop("required", true);
+                                            form.find("input[id='userLoginText']").prop("required", false);
+
+                                        });
                                     });
+
 
                                     $(window).on('beforeunload', function () {
                                         clearTimeout(intervalId);
@@ -260,13 +288,14 @@
                                 <div class="container" style="width: 40vw; min-width: 500px">
                                     <div class="row">
                                         <textarea th:field="${chat_message.messageText}" th:name="messageText"
+                                                  id="messageText"
                                                   class="form-control col" placeholder="Напишите что-нибудь"
-                                                  style="height: calc(7vh + 30px)"
-                                                  required></textarea>
+                                                  style="height: calc(7vh + 30px)"></textarea>
 
                                         <input type="hidden" th:field="${chat.userLogin}" th:name="userLogin">
                                         <br>
                                         <button type="submit" th:formaction="@{/chat/send}"
+                                                value="send"
                                                 class="btn btn-info btn-rounded col-2 ms-2 p-0"
                                                 style="height: calc(7vh + 30px);font-size: 1vw">
                                             <strong>Отправить</strong>

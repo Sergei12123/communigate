@@ -14,6 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -117,7 +118,8 @@ public class MessageController {
             if (el.getTasks() == null) {
                 el.setTasks(new ArrayList<>());
             }
-            el.getTasks().add(TaskDTO.builder().build());
+            el.setHaveTask(false);
+            el.getTasks().add(TaskDTO.builder().taskText(el.getTitle()).timeStart(LocalDateTime.now()).timeEnd(LocalDateTime.now().plusDays(1)).build());
         });
         return MESSAGES;
     }
@@ -128,7 +130,14 @@ public class MessageController {
             if (el.getMeetings() == null) {
                 el.setMeetings(new ArrayList<>());
             }
-            el.getMeetings().add(MeetingDTO.builder().organizer(userCache.getCurrentUserName() + "@ivanov.ru").attendees(List.of("")).build());
+            el.setHaveMeeting(false);
+            el.getMeetings().add(MeetingDTO.builder()
+                .meetingText(el.getTitle())
+                .attendees(List.of(el.getUserLogin()))
+                .organizer(userCache.getCurrentUserName() + "@ivanov.ru")
+                .timeStart(LocalDateTime.now().plusMinutes(15))
+                .timeEnd(LocalDateTime.now().plusMinutes(45))
+                .build());
         });
         return MESSAGES;
     }
@@ -156,13 +165,13 @@ public class MessageController {
         }
         messagesForm.getMessages().stream()
             .filter(messageDTO -> messageDTO.getUid().equals(messageUid))
-            .map(MessageDTO::getTasks)
             .forEach(el -> {
                 final TaskDTO taskDTOtemp = getLastCreatedTask().get();
-                el.get(taskIndex).setTaskUid(taskDTOtemp.getTaskUid());
-                el.get(taskIndex).setUid(taskDTOtemp.getUid());
-                taskService.updateTask(el.get(taskIndex));
-                el.get(taskIndex).setFieldsDisabled(true);
+                el.getTasks().get(taskIndex).setTaskUid(taskDTOtemp.getTaskUid());
+                el.getTasks().get(taskIndex).setUid(taskDTOtemp.getUid());
+                taskService.updateTask(el.getTasks().get(taskIndex));
+                messageService.markMessage(List.of(el.getUid()), "taskCreated");
+                el.getTasks().get(taskIndex).setFieldsDisabled(true);
             });
         return MESSAGES;
     }
@@ -171,8 +180,11 @@ public class MessageController {
     public String deleteTask(@PathVariable("messageUid") Long messageUid, @PathVariable("taskIndex") int taskIndex, @ModelAttribute(MESSAGES_FORM) MessagesForm messagesForm) {
         messagesForm.getMessages().stream()
             .filter(messageDTO -> messageDTO.getUid().equals(messageUid))
-            .map(MessageDTO::getTasks)
-            .forEach(el -> el.remove(taskIndex));
+            .forEach(el -> {
+                el.getTasks().remove(taskIndex);
+                el.setHaveTask(true);
+            });
+
         return MESSAGES;
     }
 
@@ -183,13 +195,13 @@ public class MessageController {
         }
         messagesForm.getMessages().stream()
             .filter(messageDTO -> messageDTO.getUid().equals(messageUid))
-            .map(MessageDTO::getMeetings)
             .forEach(el -> {
                 final MeetingDTO meetingDTOtemp = getLastCreatedMeeting().get();
-                el.get(meetingIndex).setItemUid(meetingDTOtemp.getItemUid());
-                el.get(meetingIndex).setUid(meetingDTOtemp.getUid());
-                meetingService.updateMeeting(el.get(meetingIndex));
-                el.get(meetingIndex).setFieldsDisabled(true);
+                el.getMeetings().get(meetingIndex).setItemUid(meetingDTOtemp.getItemUid());
+                el.getMeetings().get(meetingIndex).setUid(meetingDTOtemp.getUid());
+                meetingService.updateMeeting(el.getMeetings().get(meetingIndex));
+                messageService.markMessage(List.of(el.getUid()), "meetingCreated");
+                el.getMeetings().get(meetingIndex).setFieldsDisabled(true);
             });
         return MESSAGES;
     }
@@ -198,8 +210,10 @@ public class MessageController {
     public String deleteMeeting(@PathVariable("messageUid") Long messageUid, @PathVariable("meetingIndex") int meetingIndex, @ModelAttribute(MESSAGES_FORM) MessagesForm messagesForm) {
         messagesForm.getMessages().stream()
             .filter(messageDTO -> messageDTO.getUid().equals(messageUid))
-            .map(MessageDTO::getMeetings)
-            .forEach(el -> el.remove(meetingIndex));
+            .forEach(el -> {
+                el.getMeetings().remove(meetingIndex);
+                el.setHaveMeeting(true);
+            });
         return MESSAGES;
     }
 

@@ -95,7 +95,7 @@ public class ChatController {
         return REDIRECT_CHAT_ALL + (selectedChats.size() == 1 ? "?signalDeleted" : "?signalsDeleted");
     }
 
-    @PostMapping("/new")
+    @GetMapping("/new")
     public String newChat(Model model, RedirectAttributes redirectAttributes,
                           @RequestParam(value = USER_LOGIN, required = false) String userLogin) {
         if (model.getAttribute("new") == null) {
@@ -117,7 +117,7 @@ public class ChatController {
         }
     }
 
-    @PostMapping("/select/{userLogin}")
+    @GetMapping("/select/{userLogin}")
     public String selectChat(@PathVariable(USER_LOGIN) String userLogin, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute(USER_LOGIN, userLogin.replace("$", ""));
         return REDIRECT_CHAT_ALL;

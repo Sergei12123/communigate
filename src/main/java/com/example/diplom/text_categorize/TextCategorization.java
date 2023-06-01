@@ -33,7 +33,7 @@ public class TextCategorization {
     public static DynamicLMClassifier<NGramProcessLM> trainCategorizator(final boolean storeModelFile) {
         String[] categories = {"NONE", "TASK", "MEETING", "TASK_AND_MEETING"};
 
-        int nGram = 5;
+        int nGram = 3;
         DynamicLMClassifier<NGramProcessLM> classifier = DynamicLMClassifier.createNGramProcess(categories, nGram);
 
         trainClassifier(classifier);

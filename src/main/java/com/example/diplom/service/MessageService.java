@@ -21,10 +21,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -49,19 +46,31 @@ public class MessageService {
             .toList();
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
         return folderMessages.stream()
-            .map(this::getMessageDTO)
+            .map(messageById -> getMessageDTO(
+                messageById,
+                getFlags(folderReports, messageById)))
             .toList();
+    }
+
+    private static Set<String> getFlags(List<FolderReport> folderReports, Map.Entry<Long, MimeMessageParser> messageById) {
+        return folderReports.stream()
+            .filter(el -> el.getUid().equals(messageById.getKey()))
+            .findAny()
+            .map(FolderReport::getFlag)
+            .map(el -> el.split(","))
+            .map(Set::of)
+            .orElse(Set.of(""));
     }
 
     public MessageDTO getMessageByUid(final Long uid) {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
+        final List<FolderReport> folderReports = ximssService.sendRequestToGetList(FolderBrowse.builder().build(), FolderReport.class);
         Map.Entry<Long, MimeMessageParser> messageById = getMessageEntry(uid);
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
-        return getMessageDTO(messageById);
-
+        return getMessageDTO(messageById, getFlags(folderReports, messageById));
     }
 
-    private MessageDTO getMessageDTO(Map.Entry<Long, MimeMessageParser> messageById) {
+    private MessageDTO getMessageDTO(Map.Entry<Long, MimeMessageParser> messageById, Set<String> flags) {
         try {
             MessageDTO messageDTO = new MessageDTO(messageById.getKey(), messageById.getValue());
             switch (textCategorizerService.classifyTexts(messageDTO.getText())) {
@@ -75,6 +84,12 @@ public class MessageService {
                     messageDTO.setHaveMeeting(false);
                     messageDTO.setHaveTask(false);
                 }
+            }
+            if (flags.contains("meetingCreated")) {
+                messageDTO.setHaveMeeting(false);
+            }
+            if (flags.contains("taskCreated")) {
+                messageDTO.setHaveTask(false);
             }
             return messageDTO;
         } catch (Exception e) {
@@ -119,8 +134,12 @@ public class MessageService {
     }
 
     public void deleteMessages(final Long[] selectedMessages) {
+        markMessage(Arrays.stream(selectedMessages).toList(), "Deleted");
+    }
+
+    public void markMessage(final List<Long> uids, final String flag) {
         ximssService.sendRequestToGetNothing(FolderOpen.builder().build());
-        ximssService.sendRequestToGetNothing(MessageMark.builder().flags("Deleted").uid(Arrays.stream(selectedMessages).toList()).build());
+        ximssService.sendRequestToGetNothing(MessageMark.builder().flags(flag).uid(uids).build());
         ximssService.sendRequestToGetNothing(FolderExpunge.builder().build());
         ximssService.sendRequestToGetNothing(FolderClose.builder().build());
     }
