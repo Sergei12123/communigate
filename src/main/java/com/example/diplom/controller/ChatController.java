@@ -126,15 +126,16 @@ public class ChatController {
     @PostMapping("/getChatMessage")
     public String getChatMessages(Model model,
                                   @RequestBody(required = false) String message) {
-        ReadIm objectFromXML = ximssService.getObjectFromXML(message, ReadIm.class);
-        if (objectFromXML.getMessageText() != null) {
+        List<ReadIm> listFromXML = ximssService.getListFromXML(message, ReadIm.class);
+        ReadIm readIm = listFromXML.stream().filter(el -> el.getMessageText() != null).findFirst().orElse(new ReadIm());
+        if (readIm.getMessageText() != null) {
             List<ChatDTO> allChats = chatService.getAllChats();
-            String login = objectFromXML.getPeer().replace("@ivanov.ru", "");
+            String login = readIm.getPeer().replace("@ivanov.ru", "");
             ChatDTO chatByLogin = chatService.getChatByLogin(login);
             chatByLogin.setCurrent(true);
             allChats.stream().filter(el -> el.getUserLogin().equals(chatByLogin.getUserLogin())).forEach(chat -> chat.setCurrent(true));
             model.addAttribute("chatMessage", ChatMessage.builder()
-                .messageText(objectFromXML.getMessageText().replace("*This message was transferred with a trial version of CommuniGate(r) Pro*", ""))
+                .messageText(readIm.getMessageText().replace("*This message was transferred with a trial version of CommuniGate(r) Pro*", ""))
                 .userLogin(login)
                 .build());
             model.addAttribute(CHAT, chatByLogin);
@@ -147,14 +148,16 @@ public class ChatController {
     @PostMapping("/getListOfChats")
     public String getListOfChats(Model model,
                                  @RequestBody(required = false) String message) {
-        ReadIm objectFromXML = ximssService.getObjectFromXML(message, ReadIm.class);
-        if (objectFromXML.getMessageText() != null) {
+        List<ReadIm> listFromXML = ximssService.getListFromXML(message, ReadIm.class);
+        ReadIm readIm = listFromXML.stream().filter(el -> el.getMessageText() != null).findFirst().orElse(new ReadIm());
+        if (readIm.getMessageText() != null) {
             List<ChatDTO> allChats = chatService.getAllChats();
-            String login = objectFromXML.getPeer().replace("@ivanov.ru", "");
+            String login = readIm.getPeer().replace("@ivanov.ru", "");
             allChats.stream().filter(el -> el.getUserLogin().equals(login)).forEach(chat -> chat.setCurrent(true));
             model.addAttribute(CHATS, allChats);
             return "chats :: listOfChats";
-        } else return "";
+        } else
+            return "";
 
     }
 
