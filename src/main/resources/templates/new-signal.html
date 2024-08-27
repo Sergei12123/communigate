@@ -88,7 +88,7 @@
                     </div>
                     <div class="col-2">
                         <select th:field="*{priority}" class="form-select">
-                            <option th:each="rulePriority : ${T(com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.RulePriority).values()}"
+                            <option th:each="rulePriority : ${T(com.example.communigate.ximss.parts_of_ximss.ximss_dictionary.RulePriority).values()}"
                                     th:text="${rulePriority.getRuValue()}"
                                     th:value="${rulePriority}"
                                     th:selected="${rulePriority == signal.priority}">
@@ -105,7 +105,7 @@
                     </div>
                     <div class="col-2">
                         <select th:field="*{stage}" class="form-select">
-                            <option th:each="signalStage : ${T(com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.SignalStage).values()}"
+                            <option th:each="signalStage : ${T(com.example.communigate.ximss.parts_of_ximss.ximss_dictionary.SignalStage).values()}"
                                     th:text="${signalStage.getRuValue()}"
                                     th:value="${signalStage}"
                                     th:selected="${signalStage == signal.stage}">
@@ -132,7 +132,7 @@
 
                     <div class="col">
                         <select th:field="*{conditionList[__${index.index}__].opCode}" class="form-select">
-                            <option th:each="condOpCode : ${T(com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.ConditionOpCode).SIGNAL_RULE_OP_CODES}"
+                            <option th:each="condOpCode : ${T(com.example.communigate.ximss.parts_of_ximss.ximss_dictionary.ConditionOpCode).SIGNAL_RULE_OP_CODES}"
                                     th:text="${condOpCode.getRuValue()}"
                                     th:value="${condOpCode}"
                                     th:name="|conditionList[${index.index}].opCode|"></option>
@@ -141,7 +141,7 @@
 
                     <div class="col">
                         <select th:field="*{conditionList[__${index.index}__].operator}" class="form-select">
-                            <option th:each="condOperator : ${T(com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.ConditionOperator).values()}"
+                            <option th:each="condOperator : ${T(com.example.communigate.ximss.parts_of_ximss.ximss_dictionary.ConditionOperator).values()}"
                                     th:text="${condOperator.getRuValue()}"
                                     th:value="${condOperator}"
                                     th:name="|conditionList[${index.index}].operator|"></option>
@@ -183,7 +183,7 @@
                 <div class="row pb-2" th:each="action, index : *{actionList}">
                     <div class="col-4">
                         <select th:field="*{actionList[__${index.index}__].opCode}" class="form-select">
-                            <option th:each="actionOpCode : ${T(com.example.diplom.ximss.parts_of_ximss.ximss_dictionary.ActionOpCode).SIGNAL_ACTION_OP_CODES}"
+                            <option th:each="actionOpCode : ${T(com.example.communigate.ximss.parts_of_ximss.ximss_dictionary.ActionOpCode).SIGNAL_ACTION_OP_CODES}"
                                     th:text="${actionOpCode.getRuValue()}"
                                     th:value="${actionOpCode}"
                                     th:name="|actionList[${index.index}].opCode|"></option>
